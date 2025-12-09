@@ -1,0 +1,1102 @@
+<!-- update: keep list-style layout + hero card, add analysis (weights/age) in detail, switch all doughnut charts to horizontal stacked bars -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>대한민국 진짜 여론 MVP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" as="style" crossorigin="" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background-color: #F5F7FA; }
+    .card { box-shadow: 0 18px 50px -24px rgba(15, 23, 42, 0.4); }
+    .pulse-dot { box-shadow: 0 0 0 rgba(59,130,246,0.4); animation: pulse 1.8s infinite; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(59,130,246,0.35); } 70% { box-shadow: 0 0 0 14px rgba(59,130,246,0); } 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0); } }
+    .page-transition { transition: opacity 0.3s ease, transform 0.3s ease; }
+    .fade-enter { opacity: 0; transform: translateY(10px); }
+    .fade-enter-active { opacity: 1; transform: translateY(0); }
+    .bar-fill { transition: width 0.5s ease; }
+  </style>
+</head>
+<body class="bg-[#F5F7FA] text-gray-900 min-h-screen pb-20">
+  <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+  <!-- 로그인 / 회원가입 (Mock) -->
+  <div id="login-modal" class="fixed inset-0 bg-black/70 text-white hidden items-center justify-center px-4 z-[140]">
+    <div class="bg-white text-gray-900 rounded-3xl w-full max-w-md p-6 card space-y-4 relative">
+      <div>
+        <p class="text-xs text-blue-600 font-semibold mb-1">참여 전 로그인</p>
+        <h2 class="text-xl font-bold leading-snug">대한민국 진짜 여론에 참여하려면 로그인이 필요합니다.</h2>
+        <p class="text-sm text-gray-600 mt-2">OAuth는 시연용 Mock 입니다. 어떤 버튼을 눌러도 가짜 계정이 생성됩니다.</p>
+      </div>
+      <div class="space-y-2">
+        <button id="login-kakao" class="w-full py-3 rounded-xl bg-[#FEE500] text-gray-900 font-semibold shadow hover:translate-y-[-1px] transition">카카오로 계속하기</button>
+        <button id="login-naver" class="w-full py-3 rounded-xl bg-[#03C75A] text-white font-semibold shadow hover:translate-y-[-1px] transition">네이버로 계속하기</button>
+        <button id="login-google" class="w-full py-3 rounded-xl bg-white border border-gray-200 text-gray-800 font-semibold shadow hover:translate-y-[-1px] transition">구글로 계속하기</button>
+        <button id="login-email" class="w-full py-3 rounded-xl bg-gray-900 text-white font-semibold shadow hover:translate-y-[-1px] transition">이메일로 계속하기 (Mock)</button>
+      </div>
+      <p class="text-xs text-gray-500">로그인 후 연령대·거주지를 설정하면 보정 정확도가 높아집니다.</p>
+    </div>
+  </div>
+
+  <!-- 프로필 / 한국인 인증 (Mock) -->
+  <div id="profile-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center px-4 z-[120]">
+    <div class="bg-white rounded-2xl w-full max-w-md p-6 card relative">
+      <button class="absolute top-3 right-3 text-gray-400 hover:text-gray-600" onclick="closeProfileModal()">x</button>
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">K</div>
+        <div>
+          <p class="text-sm text-gray-500">한국인 인증 (Mock)</p>
+          <p class="font-semibold text-gray-900">연령대 · 거주지 설정</p>
+        </div>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <label class="text-sm font-semibold text-gray-700">연령대</label>
+          <select id="profile-age" class="mt-2 w-full rounded-xl border border-gray-200 p-3 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500">
+            <option value="">선택하세요</option>
+            <option>10대</option>
+            <option>20대</option>
+            <option>30대</option>
+            <option>40대</option>
+            <option>50대</option>
+            <option>60+</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-sm font-semibold text-gray-700">거주지</label>
+          <select id="profile-region" class="mt-2 w-full rounded-xl border border-gray-200 p-3 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500">
+            <option value="">선택하세요</option>
+            <option>서울/수도권</option>
+            <option>지방</option>
+            <option>해외</option>
+          </select>
+        </div>
+        <div class="flex items-center gap-2 text-xs text-gray-500 bg-gray-50 border border-gray-100 p-3 rounded-xl">
+          <span class="material-symbols-outlined text-base text-blue-500">verified_user</span>
+          실명/통신사는 묻지 않습니다. 연령·거주지만 확보해 여론 보정을 준비합니다.
+        </div>
+        <button onclick="saveProfile()" class="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold shadow-md hover:shadow-lg transition">인증 정보 저장</button>
+      </div>
+    </div>
+  </div>
+
+  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200 shadow-sm">
+    <div class="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between relative">
+      <div class="flex items-center gap-2 cursor-pointer" onclick="setView('home')">
+        <span class="material-symbols-outlined text-blue-600 text-2xl">how_to_vote</span>
+        <div>
+          <p class="text-xs text-gray-500">대한민국 진짜 여론</p>
+          <p class="font-semibold">조작 없는 MVP</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-1 text-xs text-blue-600 font-semibold bg-blue-50 px-3 py-1 rounded-full">
+          <span class="w-2 h-2 rounded-full bg-blue-500 pulse-dot"></span>
+          한국인 인증(Mock)
+        </div>
+        <button id="btn-open-profile" class="p-2 rounded-full hover:bg-gray-100 text-xl leading-none" aria-label="프로필 열기">👤</button>
+      </div>
+
+      <!-- 사용자 정보 패널 -->
+      <div id="user-panel" class="hidden absolute right-0 top-14 w-72 bg-white border border-gray-200 rounded-2xl shadow-xl p-4 z-[130] space-y-3">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <p class="text-xs text-gray-500" id="user-panel-provider">로그인 필요</p>
+            <p class="text-lg font-semibold text-gray-900" id="user-panel-name">게스트</p>
+            <p class="text-sm text-gray-600 mt-1" id="user-panel-profile">연령·거주지 미입력</p>
+          </div>
+          <span class="px-2 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700" id="user-panel-rep-tag">대표성 안내</span>
+        </div>
+        <p class="text-xs text-gray-500 leading-relaxed" id="user-panel-rep-msg">연령대 정보를 입력하면 대표성 기여도를 안내해 드립니다.</p>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="openProfileModal()" class="py-2 rounded-xl border border-gray-200 text-sm font-semibold hover:border-blue-500 hover:text-blue-600 transition">연령대·거주지 수정</button>
+          <button onclick="logout()" class="py-2 rounded-xl bg-gray-900 text-white text-sm font-semibold hover:bg-gray-800 transition">로그아웃</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-4 pt-4">
+    <section id="view-home" class="page-transition">
+      <h2 class="text-xl font-extrabold text-gray-800 mb-4">이슈 목록</h2>
+
+      <!-- 히어로: 오늘의 이슈 + 대표성 카드 -->
+      <div id="hero-card" class="bg-gradient-to-r from-blue-900 via-blue-700 to-blue-500 rounded-3xl text-white p-6 card relative overflow-hidden mb-4 cursor-pointer">
+        <div class="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top,_#60a5fa_0,_transparent_38%)]"></div>
+        <div class="relative z-10 flex flex-col gap-3">
+          <div class="flex items-center gap-2 text-sm text-blue-100">
+            <span class="px-2 py-0.5 rounded-full bg-white/15 text-[11px] font-semibold">오늘의 이슈</span>
+            <span id="home-category" class="text-blue-50">정책</span>
+          </div>
+          <h1 id="home-title" class="text-2xl font-extrabold leading-snug">국민연금 개혁안, 동의하십니까?</h1>
+          <p id="home-description" class="text-sm text-blue-50">세대별 편향을 보정한 진짜 여론을 보여줍니다.</p>
+          <div class="grid grid-cols-3 gap-3 text-sm">
+            <div class="bg-white/10 rounded-2xl px-3 py-2 border border-white/10">
+              <p class="text-blue-100">총 참여</p>
+              <p id="home-total" class="text-lg font-bold">0명</p>
+            </div>
+            <div class="bg-white/10 rounded-2xl px-3 py-2 border border-white/10">
+              <p class="text-blue-100">대표성 점수</p>
+              <p id="home-rep-score" class="text-lg font-bold">0 / 100</p>
+            </div>
+            <div class="bg-white/10 rounded-2xl px-3 py-2 border border-white/10">
+              <p class="text-blue-100">내 투표</p>
+              <p id="home-my-vote" class="text-lg font-bold">대기</p>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-3 mt-1">
+            <button id="btn-hero-vote" class="px-4 py-3 rounded-xl bg-white text-blue-700 font-semibold shadow-md hover:-translate-y-0.5 transition">투표하기</button>
+            <button id="btn-hero-view" class="px-4 py-3 rounded-xl bg-white/15 text-white font-semibold border border-white/20 hover:border-white/40 transition">현재 여론 보기</button>
+          </div>
+          <div class="bg-white/10 rounded-2xl p-3 mt-2 h-28">
+            <p class="text-xs text-blue-100 mb-2">Raw 여론 미리보기</p>
+            <canvas id="preview-raw" class="h-full"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 overflow-x-auto pb-3 mb-2 -mx-1 px-1" id="category-tabs"></div>
+
+      <!-- 기존 스타일 이슈 카드 리스트 -->
+      <div id="issue-list" class="space-y-4 mb-12"></div>
+    </section>
+
+    <section id="view-detail" class="page-transition hidden">
+      <button onclick="setView('home')" class="mb-4 flex items-center text-gray-500 hover:text-gray-700 transition-colors">
+        <span class="material-symbols-outlined text-xl mr-1">arrow_back_ios</span>
+        <span class="text-sm font-medium">목록으로</span>
+      </button>
+
+      <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mb-6">
+        <span id="detail-category" class="px-2 py-0.5 rounded bg-gray-50 text-gray-500 text-[11px] font-bold mb-2 inline-block">정책</span>
+        <h2 id="detail-title" class="text-2xl font-bold text-gray-900 mb-4 leading-snug">국민연금 개혁안, 동의하십니까?</h2>
+
+        <div id="vote-area" class="mb-6">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-lg font-semibold text-gray-700">당신의 의견은 무엇인가요?</h3>
+            <span class="text-xs text-gray-400 font-medium">1인 1표, 수정 불가</span>
+          </div>
+          <div class="grid grid-cols-3 gap-3">
+            <button id="vote-agree" onclick="handleVote('agree')" class="p-3 rounded-xl border-2 border-gray-200 text-gray-700 font-medium hover:border-blue-500 hover:bg-blue-50 transition-all active:scale-[0.98]">찬성</button>
+            <button id="vote-neutral" onclick="handleVote('neutral')" class="p-3 rounded-xl border-2 border-gray-200 text-gray-700 font-medium hover:border-gray-400 hover:bg-gray-100 transition-all active:scale-[0.98]">중립</button>
+            <button id="vote-disagree" onclick="handleVote('disagree')" class="p-3 rounded-xl border-2 border-gray-200 text-gray-700 font-medium hover:border-red-500 hover:bg-red-50 transition-all active:scale-[0.98]">반대</button>
+          </div>
+        </div>
+
+        <div id="result-area" class="border-t border-gray-100 pt-6">
+          <h3 class="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
+            <span class="material-symbols-outlined text-blue-600 text-xl">insights</span>
+            실시간 투표 결과 (전체)
+          </h3>
+          <div id="total-vote-count" class="text-sm text-gray-500 mb-3 font-medium">총 0명 참여</div>
+
+          <div class="w-full h-8 bg-gray-100 rounded-full flex overflow-hidden mb-2">
+            <div id="bar-agree" style="width: 0%" class="h-full bg-blue-600 bar-fill flex items-center justify-center text-[10px] text-white font-bold px-1"></div>
+            <div id="bar-neutral" style="width: 0%" class="h-full bg-gray-400 bar-fill flex items-center justify-center text-[10px] text-gray-800 font-bold px-1"></div>
+            <div id="bar-disagree" style="width: 0%" class="h-full bg-red-600 bar-fill flex items-center justify-center text-[10px] text-white font-bold px-1"></div>
+          </div>
+          <div class="flex justify-between text-xs text-gray-500 font-medium px-1">
+            <span id="percent-agree" class="text-blue-600">찬성 0%</span>
+            <span id="percent-neutral" class="text-gray-600">중립 0%</span>
+            <span id="percent-disagree" class="text-red-600">반대 0%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 여론 분석 섹션 -->
+      <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mb-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-3">
+          <div>
+            <p class="text-xs text-gray-500">보정 + 편향 경고</p>
+            <h3 class="text-xl font-bold text-gray-900">여론 분석 (Raw vs 보정)</h3>
+            <p class="text-sm text-gray-600 mt-1">전체 여론(%)과 보정 여론(%)을 나란히 비교합니다. x축은 0~100% (20% 간격) 입니다.</p>
+          </div>
+          <div class="flex items-center gap-2 text-sm px-3 py-2 rounded-xl bg-emerald-50 text-emerald-700 font-semibold">
+            <span class="material-symbols-outlined text-base">verified</span>
+            <span>대표성 <span id="detail-rep-score">0</span>/100</span>
+          </div>
+        </div>
+        <div id="bias-warnings" class="space-y-2 mb-4"></div>
+        <div class="grid md:grid-cols-2 gap-4 mb-4">
+          <div class="p-4 rounded-2xl border border-slate-100 bg-gray-50/60">
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <p class="text-xs text-gray-500">Raw</p>
+                <p class="font-bold">전체 여론</p>
+              </div>
+              <span class="text-xs px-2 py-1 rounded-full bg-slate-200 text-gray-700">가로 스택</span>
+            </div>
+            <div class="h-40"><canvas id="chart-raw"></canvas></div>
+          </div>
+          <div class="p-4 rounded-2xl border border-slate-100 bg-gray-50/60">
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <p class="text-xs text-gray-500">보정</p>
+                <p class="font-bold">대한민국 인구 가중치 적용</p>
+              </div>
+              <span class="text-xs px-2 py-1 rounded-full bg-emerald-100 text-emerald-700">가중 스택</span>
+            </div>
+            <div class="h-40"><canvas id="chart-corrected"></canvas></div>
+          </div>
+        </div>
+        <div class="p-4 rounded-2xl border border-slate-100 bg-gray-50/60">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <p class="text-xs text-gray-500">연령별</p>
+              <p class="font-bold">연령대별 찬·중·반 분포</p>
+            </div>
+            <span class="text-xs px-2 py-1 rounded-full bg-purple-100 text-purple-700">stacked bar</span>
+          </div>
+          <div class="h-72"><canvas id="chart-age"></canvas></div>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mb-6">
+        <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <span class="material-symbols-outlined text-xl text-indigo-600">menu_book</span>
+          이슈 근거 자료 (Evidence)
+        </h3>
+        <div class="flex border-b border-gray-200 mb-4">
+          <button id="tab-pro" onclick="selectEvidenceTab('pro', this)" class="tab-btn pb-2 px-4 text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600 hover:text-indigo-700 transition-colors">찬성 근거 (Pro)</button>
+          <button id="tab-con" onclick="selectEvidenceTab('con', this)" class="tab-btn pb-2 px-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition-colors">반대 근거 (Con)</button>
+        </div>
+        <div id="evidence-list" class="space-y-4"></div>
+      </div>
+
+      <div class="mb-20">
+        <div class="flex justify-between items-end mb-4">
+          <h3 class="text-lg font-bold text-gray-900">최다 공감 의견 (<span id="comment-count">0</span>)</h3>
+          <button onclick="addCommentFromPrompt()" class="text-sm text-blue-600 font-semibold hover:text-blue-800 transition-colors">임시 의견 추가</button>
+        </div>
+        <div id="comment-list" class="space-y-3"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const ISSUE_CATEGORIES = ['전체', '정치', '사회', '경제', '기타'];
+
+    const ISSUES = [
+      { id: 'issue-1', category: '정치', title: '국민연금 개혁안, 동의하십니까?', description: '보험료율 인상·연금 지급 개편 포함. 세대별 이해를 반영합니다.', isHot: true },
+      { id: 'issue-2', category: '사회', title: '수도권 심야 대중교통 확대, 찬성하십니까?', description: '막차 연장·심야 버스 증편 비용을 감당할지 의견을 묻습니다.', isHot: false },
+      { id: 'issue-3', category: '경제', title: '전기요금 연동제 재도입이 필요할까요?', description: '국제 에너지 가격 변동을 반영하는 요금제에 대한 질문입니다.', isHot: false },
+      { id: 'issue-4', category: '기타', title: '실명제 소셜미디어 도입, 어떻게 생각하나요?', description: '악성 게시물 감소 vs 표현의 자유 침해 우려를 묻습니다.', isHot: false }
+    ];
+
+    const AGE_GROUPS = [
+      { id: '10대', label: '10대', populationRatio: 0.09 },
+      { id: '20대', label: '20대', populationRatio: 0.14 },
+      { id: '30대', label: '30대', populationRatio: 0.16 },
+      { id: '40대', label: '40대', populationRatio: 0.18 },
+      { id: '50대', label: '50대', populationRatio: 0.19 },
+      { id: '60+', label: '60+', populationRatio: 0.24 }
+    ];
+
+    const EVIDENCE = {
+      'issue-1': {
+        pro: [
+          { title: '보험료율 상향으로 기금 고갈 시점 연기', source: '국회 예산정책처', link: '#' },
+          { title: '청년층 부담 완화 위한 단계적 개편 필요', source: '연금연구원 브리프', link: '#' }
+        ],
+        con: [
+          { title: '보험료 인상은 저소득층 역진성 우려', source: '시민단체 성명', link: '#' },
+          { title: '급여 축소 시 노후소득 보장 약화', source: '학회 토론회', link: '#' }
+        ]
+      },
+      'issue-2': {
+        pro: [
+          { title: '심야 이동권 보장을 위한 대중교통 확대 필요', source: '서울연구원', link: '#' },
+          { title: '택시 수급 불균형 완화를 위해 심야버스 증편', source: '교통 정책 포럼', link: '#' }
+        ],
+        con: [
+          { title: '심야 노선 확대 시 적자 부담 우려', source: '지자체 예산 보고서', link: '#' },
+          { title: '안전 인력 확보 없이 연장은 위험', source: '노동조합 성명', link: '#' }
+        ]
+      },
+      'issue-3': {
+        pro: [
+          { title: '연동제는 에너지 절약을 유도해 소비를 줄인다', source: '에너지경제연구원', link: '#' },
+          { title: '국제 가격 급등 시 재정 부담을 분산', source: '산업부 브리핑', link: '#' }
+        ],
+        con: [
+          { title: '요금 변동성 확대는 가계 불안을 키운다', source: '소비자연맹', link: '#' },
+          { title: '산업 경쟁력 저하 우려', source: '무역협회 코멘트', link: '#' }
+        ]
+      },
+      'issue-4': {
+        pro: [
+          { title: '실명제 도입 시 허위·악성 게시물 감소 가능', source: '인터넷윤리포럼', link: '#' },
+          { title: '사이버 폭력 피해자 보호', source: '피해자 지원 단체', link: '#' }
+        ],
+        con: [
+          { title: '익명성 제한은 표현의 자유 침해', source: '디지털인권 NGO', link: '#' },
+          { title: '개인정보 유출 리스크 증가', source: '보안 컨퍼런스', link: '#' }
+        ]
+      }
+    };
+
+    const COMMENTS = {
+      'issue-1': [
+        { type: '찬성', nickname: '연금걱정없게', meta: '30대 · 수도권', content: '지금 손 안 대면 우리 세대가 다 부담합니다.', likes: 22 },
+        { type: '반대', nickname: '은퇴준비중', meta: '60+ · 지방', content: '급여 줄이고 보험료 올리면 이중고입니다.', likes: 15 },
+        { type: '중립', nickname: '밸런스러버', meta: '20대 · 수도권', content: '인상 폭을 세분화해서 세대별 차등이 필요해요.', likes: 11 }
+      ],
+      'issue-2': [
+        { type: '찬성', nickname: '야근탈출', meta: '20대 · 수도권', content: '심야 이동권 확보가 최우선입니다.', likes: 14 },
+        { type: '반대', nickname: '예산수호', meta: '40대 · 지방', content: '적자 보전은 결국 시민 부담입니다.', likes: 9 }
+      ],
+      'issue-3': [
+        { type: '반대', nickname: '전기세걱정', meta: '30대 · 수도권', content: '요금 출렁이면 가계 계획 세우기 힘들어요.', likes: 7 },
+        { type: '찬성', nickname: '에너지절약', meta: '50대 · 지방', content: '절약을 유도하려면 가격 신호가 필요합니다.', likes: 12 }
+      ],
+      'issue-4': [
+        { type: '반대', nickname: '익명소중', meta: '20대 · 수도권', content: '익명성은 표현의 다양성을 지키는 장치입니다.', likes: 8 },
+        { type: '찬성', nickname: '클린웹', meta: '40대 · 수도권', content: '실명제면 악플이 확 줄 것 같아요.', likes: 10 }
+      ]
+    };
+
+    const STORAGE_KEYS = {
+      profile: 'rr-profile',
+      votes: 'rr-votes',
+      userVote: 'rr-user-vote-map',
+      user: 'rr-user'
+    };
+
+    const COLORS = {
+      찬성: 'rgb(37, 99, 235)',
+      중립: 'rgb(107, 114, 128)',
+      반대: 'rgb(239, 68, 68)'
+    };
+
+    const charts = { raw: null, corrected: null, age: null, preview: null };
+
+    let votes = [];
+    let userProfile = null;
+    let userVoteMap = {};
+    let currentUser = null;
+    let selectedIssueId = null;
+    let activeEvidenceTab = 'pro';
+    let activeCategory = '전체';
+    let latestMetricsMap = {};
+
+    const SEED_VOTES = [
+      { issueId: 'issue-1', choice: '찬성', age_group: '20대', region: '서울/수도권', timestamp: Date.now() - 90000 },
+      { issueId: 'issue-1', choice: '찬성', age_group: '30대', region: '서울/수도권', timestamp: Date.now() - 88000 },
+      { issueId: 'issue-1', choice: '반대', age_group: '40대', region: '지방', timestamp: Date.now() - 86000 },
+      { issueId: 'issue-1', choice: '찬성', age_group: '40대', region: '서울/수도권', timestamp: Date.now() - 84000 },
+      { issueId: 'issue-1', choice: '중립', age_group: '50대', region: '지방', timestamp: Date.now() - 82000 },
+      { issueId: 'issue-1', choice: '반대', age_group: '60+', region: '지방', timestamp: Date.now() - 80000 },
+      { issueId: 'issue-1', choice: '찬성', age_group: '50대', region: '서울/수도권', timestamp: Date.now() - 78000 },
+      { issueId: 'issue-1', choice: '중립', age_group: '30대', region: '서울/수도권', timestamp: Date.now() - 76000 },
+      { issueId: 'issue-1', choice: '찬성', age_group: '20대', region: '해외', timestamp: Date.now() - 74000 },
+      { issueId: 'issue-1', choice: '반대', age_group: '60+', region: '지방', timestamp: Date.now() - 72000 },
+      { issueId: 'issue-1', choice: '찬성', age_group: '40대', region: '서울/수도권', timestamp: Date.now() - 70000 },
+      { issueId: 'issue-1', choice: '중립', age_group: '10대', region: '서울/수도권', timestamp: Date.now() - 68000 },
+      { issueId: 'issue-1', choice: '반대', age_group: '50대', region: '지방', timestamp: Date.now() - 66000 },
+      { issueId: 'issue-1', choice: '찬성', age_group: '30대', region: '서울/수도권', timestamp: Date.now() - 64000 },
+      { issueId: 'issue-1', choice: '중립', age_group: '40대', region: '해외', timestamp: Date.now() - 62000 },
+      { issueId: 'issue-1', choice: '찬성', age_group: '50대', region: '서울/수도권', timestamp: Date.now() - 60000 },
+      { issueId: 'issue-1', choice: '반대', age_group: '20대', region: '지방', timestamp: Date.now() - 58000 },
+      { issueId: 'issue-1', choice: '중립', age_group: '60+', region: '서울/수도권', timestamp: Date.now() - 56000 },
+      { issueId: 'issue-2', choice: '찬성', age_group: '20대', region: '서울/수도권', timestamp: Date.now() - 54000 },
+      { issueId: 'issue-2', choice: '찬성', age_group: '30대', region: '서울/수도권', timestamp: Date.now() - 52000 },
+      { issueId: 'issue-2', choice: '중립', age_group: '40대', region: '지방', timestamp: Date.now() - 50000 },
+      { issueId: 'issue-2', choice: '반대', age_group: '50대', region: '지방', timestamp: Date.now() - 48000 },
+      { issueId: 'issue-2', choice: '찬성', age_group: '20대', region: '서울/수도권', timestamp: Date.now() - 46000 },
+      { issueId: 'issue-2', choice: '반대', age_group: '60+', region: '서울/수도권', timestamp: Date.now() - 44000 },
+      { issueId: 'issue-3', choice: '찬성', age_group: '50대', region: '지방', timestamp: Date.now() - 42000 },
+      { issueId: 'issue-3', choice: '반대', age_group: '30대', region: '서울/수도권', timestamp: Date.now() - 40000 },
+      { issueId: 'issue-3', choice: '중립', age_group: '40대', region: '해외', timestamp: Date.now() - 38000 },
+      { issueId: 'issue-3', choice: '찬성', age_group: '20대', region: '서울/수도권', timestamp: Date.now() - 36000 },
+      { issueId: 'issue-3', choice: '반대', age_group: '60+', region: '지방', timestamp: Date.now() - 34000 },
+      { issueId: 'issue-4', choice: '반대', age_group: '20대', region: '서울/수도권', timestamp: Date.now() - 32000 },
+      { issueId: 'issue-4', choice: '찬성', age_group: '40대', region: '서울/수도권', timestamp: Date.now() - 30000 },
+      { issueId: 'issue-4', choice: '중립', age_group: '30대', region: '지방', timestamp: Date.now() - 28000 },
+      { issueId: 'issue-4', choice: '반대', age_group: '50대', region: '지방', timestamp: Date.now() - 26000 }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      votes = loadJSON(STORAGE_KEYS.votes, []);
+      if (!votes.length) {
+        votes = [...SEED_VOTES];
+        saveJSON(STORAGE_KEYS.votes, votes);
+      }
+      userProfile = loadJSON(STORAGE_KEYS.profile, null);
+      userVoteMap = loadJSON(STORAGE_KEYS.userVote, {});
+      currentUser = loadJSON(STORAGE_KEYS.user, null);
+      selectedIssueId = loadJSON('rr-selected-issue', null) || getHotIssue().id;
+
+      bindBaseEvents();
+      renderAll();
+
+      if (!currentUser) openLoginModal();
+      else if (!userProfile) showToast('연령대·거주지를 설정하면 보정 정확도가 올라갑니다.', 'info');
+    });
+
+    function bindBaseEvents() {
+      document.getElementById('login-kakao').addEventListener('click', () => mockLogin('kakao'));
+      document.getElementById('login-naver').addEventListener('click', () => mockLogin('naver'));
+      document.getElementById('login-google').addEventListener('click', () => mockLogin('google'));
+      document.getElementById('login-email').addEventListener('click', () => mockLogin('email'));
+      document.getElementById('btn-open-profile').addEventListener('click', toggleUserPanel);
+
+      const heroCard = document.getElementById('hero-card');
+      heroCard?.addEventListener('click', (e) => {
+        if (e.target.closest('button')) return;
+        openDetail(getHotIssue().id);
+      });
+      document.getElementById('btn-hero-vote').addEventListener('click', (e) => { e.stopPropagation(); openDetail(getHotIssue().id); });
+      document.getElementById('btn-hero-view').addEventListener('click', (e) => { e.stopPropagation(); openDetail(getHotIssue().id); });
+
+      document.addEventListener('click', (e) => {
+        const panel = document.getElementById('user-panel');
+        const trigger = document.getElementById('btn-open-profile');
+        if (!panel || panel.classList.contains('hidden')) return;
+        if (panel.contains(e.target) || trigger.contains(e.target)) return;
+        closeUserPanel();
+      });
+    }
+
+    function openLoginModal() {
+      const modal = document.getElementById('login-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeLoginModal() {
+      const modal = document.getElementById('login-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function providerLabel(provider) {
+      const map = { kakao: '카카오 로그인', naver: '네이버 로그인', google: '구글 로그인', email: '이메일 로그인' };
+      return map[provider] || 'Mock 로그인';
+    }
+
+    function mockLogin(provider) {
+      currentUser = { id: `demo-${provider}-${Date.now()}`, name: '테스트 유저', provider, createdAt: Date.now() };
+      saveJSON(STORAGE_KEYS.user, currentUser);
+      showToast(`${providerLabel(provider)} 완료 (Mock)`, 'success');
+      closeLoginModal();
+      closeUserPanel();
+      renderUserPanel();
+      if (!userProfile) setTimeout(() => openProfileModal(), 200);
+    }
+
+    function logout() {
+      localStorage.removeItem(STORAGE_KEYS.user);
+      localStorage.removeItem(STORAGE_KEYS.profile);
+      localStorage.removeItem(STORAGE_KEYS.userVote);
+      localStorage.removeItem(STORAGE_KEYS.votes);
+      currentUser = null;
+      userProfile = null;
+      userVoteMap = {};
+      votes = [...SEED_VOTES];
+      selectedIssueId = getHotIssue().id;
+      latestMetricsMap = {};
+      renderAll();
+      openLoginModal();
+      showToast('로그아웃되었습니다.', 'info');
+    }
+
+    function toggleUserPanel() {
+      if (!ensureLoggedIn()) return;
+      renderUserPanel();
+      document.getElementById('user-panel').classList.toggle('hidden');
+    }
+
+    function closeUserPanel() {
+      const panel = document.getElementById('user-panel');
+      panel?.classList.add('hidden');
+    }
+
+    function renderUserPanel() {
+      const panel = document.getElementById('user-panel');
+      if (!panel) return;
+      if (!currentUser) {
+        panel.classList.add('hidden');
+        return;
+      }
+      document.getElementById('user-panel-name').innerText = currentUser.name || 'Mock 유저';
+      document.getElementById('user-panel-provider').innerText = providerLabel(currentUser.provider);
+      document.getElementById('user-panel-profile').innerText = userProfile ? `${userProfile.ageGroup} · ${userProfile.region}` : '연령·거주지 미입력';
+      const issueId = getSelectedIssue().id;
+      document.getElementById('user-panel-rep-msg').innerText = getRepresentationHint(issueId);
+      document.getElementById('user-panel-rep-tag').innerText = `대표성 ${latestMetricsMap[issueId]?.repScore ?? 0}/100`;
+    }
+
+    function loadJSON(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch (e) {
+        return fallback;
+      }
+    }
+
+    function saveJSON(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function ensureLoggedIn() {
+      if (!currentUser) {
+        showToast('로그인 후 이용해주세요.', 'error');
+        openLoginModal();
+        return false;
+      }
+      return true;
+    }
+
+    function ensureProfile() {
+      if (!ensureLoggedIn()) return false;
+      if (!userProfile || !userProfile.ageGroup || !userProfile.region) {
+        showToast('연령대와 거주지를 등록해주세요 (Mock 인증)', 'error');
+        openProfileModal();
+        return false;
+      }
+      return true;
+    }
+
+    function openProfileModal() {
+      if (!ensureLoggedIn()) return;
+      document.getElementById('profile-age').value = userProfile?.ageGroup || '';
+      document.getElementById('profile-region').value = userProfile?.region || '';
+      document.getElementById('profile-modal').classList.remove('hidden');
+      document.getElementById('profile-modal').classList.add('flex');
+    }
+
+    function closeProfileModal() {
+      const modal = document.getElementById('profile-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function saveProfile() {
+      if (!ensureLoggedIn()) return;
+      const ageGroup = document.getElementById('profile-age').value;
+      const region = document.getElementById('profile-region').value;
+      if (!ageGroup || !region) {
+        showToast('연령대와 거주지를 모두 선택해주세요.', 'error');
+        return;
+      }
+      userProfile = { ageGroup, region, verifiedKorean: true };
+      saveJSON(STORAGE_KEYS.profile, userProfile);
+      showToast('인증 정보가 저장되었습니다.', 'success');
+      closeProfileModal();
+      renderAll();
+    }
+
+    function setView(view) {
+      ['home', 'detail'].forEach((name) => {
+        const el = document.getElementById(`view-${name}`);
+        el.classList.add('hidden');
+        el.classList.remove('fade-enter-active');
+      });
+      const target = document.getElementById(`view-${view}`);
+      if (!target) return;
+      target.classList.remove('hidden');
+      target.classList.add('fade-enter');
+      setTimeout(() => {
+        target.classList.add('fade-enter-active');
+        target.classList.remove('fade-enter');
+      }, 10);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      closeUserPanel();
+    }
+
+    function setSelectedIssue(issueId) {
+      selectedIssueId = issueId;
+      saveJSON('rr-selected-issue', issueId);
+      activeEvidenceTab = 'pro';
+    }
+
+    function getHotIssue() {
+      return ISSUES.find((i) => i.isHot) || ISSUES[0];
+    }
+
+    function getSelectedIssue() {
+      return ISSUES.find((i) => i.id === selectedIssueId) || getHotIssue();
+    }
+
+    function renderAll() {
+      latestMetricsMap = buildIssueMetricsMap();
+      renderUserPanel();
+      renderHome(latestMetricsMap);
+      renderDetail(latestMetricsMap);
+    }
+
+    function buildIssueMetricsMap() {
+      const map = {};
+      ISSUES.forEach((issue) => {
+        map[issue.id] = buildIssueMetrics(issue.id);
+      });
+      return map;
+    }
+
+    function buildIssueMetrics(issueId) {
+      const issueVotes = votes.filter((v) => v.issueId === issueId);
+      const raw = computeRaw(issueVotes);
+      const ageStats = computeAgeStats(issueVotes);
+      const corrected = computeCorrected(ageStats, raw.total);
+      const repScore = computeRepresentationScore(ageStats, raw.total);
+      const warnings = buildWarnings(ageStats, raw.total);
+      return { raw, ageStats, corrected, repScore, warnings };
+    }
+
+    function computeRaw(issueVotes) {
+      const counts = { 찬성: 0, 중립: 0, 반대: 0 };
+      issueVotes.forEach((v) => { if (counts[v.choice] !== undefined) counts[v.choice] += 1; });
+      const total = Object.values(counts).reduce((a, b) => a + b, 0);
+      const percents = {};
+      Object.entries(counts).forEach(([k, v]) => { percents[k] = total ? Math.round((v / total) * 1000) / 10 : 0; });
+      return { counts, percents, total };
+    }
+
+    function computeAgeStats(issueVotes) {
+      const stats = {};
+      AGE_GROUPS.forEach((g) => { stats[g.id] = { total: 0, counts: { 찬성: 0, 중립: 0, 반대: 0 } }; });
+      issueVotes.forEach((v) => {
+        if (!stats[v.age_group]) return;
+        stats[v.age_group].total += 1;
+        stats[v.age_group].counts[v.choice] = (stats[v.age_group].counts[v.choice] || 0) + 1;
+      });
+      return stats;
+    }
+
+    function computeCorrected(ageStats, total) {
+      const corrected = { 찬성: 0, 중립: 0, 반대: 0 };
+      if (!total) return corrected;
+      AGE_GROUPS.forEach((group) => {
+        const stat = ageStats[group.id];
+        if (!stat || !stat.total) return;
+        const sampleRatio = stat.total / total;
+        const weight = group.populationRatio / sampleRatio;
+        ['찬성', '중립', '반대'].forEach((choice) => {
+          const share = stat.counts[choice] / stat.total;
+          corrected[choice] += share * weight;
+        });
+      });
+      const sum = corrected.찬성 + corrected.중립 + corrected.반대;
+      if (!sum) return corrected;
+      Object.keys(corrected).forEach((k) => { corrected[k] = Math.round((corrected[k] / sum) * 1000) / 10; });
+      return corrected;
+    }
+
+    function computeRepresentationScore(ageStats, total) {
+      if (!total) return 0;
+      let deviation = 0;
+      AGE_GROUPS.forEach((group) => {
+        const sampleRatio = total ? (ageStats[group.id]?.total || 0) / total : 0;
+        deviation += Math.abs(sampleRatio - group.populationRatio);
+      });
+      const normalized = Math.max(0, 1 - Math.min(1, deviation * 1.2));
+      return Math.round(normalized * 100);
+    }
+
+    function buildWarnings(ageStats, total) {
+      const warnings = [];
+      AGE_GROUPS.forEach((group) => {
+        const sample = ageStats[group.id]?.total || 0;
+        const sampleRatio = total ? sample / total : 0;
+        const popRatio = group.populationRatio;
+        if (!sample) {
+          warnings.push(`${group.label} 참여가 없어 결과가 왜곡될 수 있습니다.`);
+          return;
+        }
+        const factor = sampleRatio / popRatio;
+        if (factor >= 1.4) warnings.push(`${group.label} 참여율이 실제 인구보다 ${factor.toFixed(1)}배 높습니다.`);
+        if (factor <= 0.6) warnings.push(`${group.label} 참여율이 낮아 보정이 크게 적용됩니다.`);
+      });
+      if (!warnings.length) warnings.push('연령대 비중이 비교적 균형적입니다. (가중치 적용 후)');
+      return warnings;
+    }
+
+    function renderHome(metricsMap) {
+      const hotIssue = getHotIssue();
+      const metrics = metricsMap[hotIssue.id] || buildIssueMetrics(hotIssue.id);
+      document.getElementById('home-category').innerText = hotIssue.category;
+      document.getElementById('home-title').innerText = hotIssue.title;
+      document.getElementById('home-description').innerText = hotIssue.description;
+      document.getElementById('home-total').innerText = `${metrics.raw.total.toLocaleString()}명`;
+      document.getElementById('home-rep-score').innerText = `${metrics.repScore} / 100`;
+      document.getElementById('home-my-vote').innerText = userVoteMap[hotIssue.id] || '대기';
+      renderPreview(metrics.raw);
+      renderCategoryTabs();
+      renderIssueList(metricsMap);
+    }
+
+    function renderCategoryTabs() {
+      const container = document.getElementById('category-tabs');
+      container.innerHTML = '';
+      ISSUE_CATEGORIES.forEach((cat) => {
+        const btn = document.createElement('button');
+        const active = activeCategory === cat;
+        btn.className = `px-3 py-2 rounded-full border text-sm font-semibold whitespace-nowrap ${active ? 'bg-blue-600 text-white border-blue-600 shadow' : 'bg-white text-gray-700 border-gray-200 hover:border-blue-300'}`;
+        btn.innerText = cat;
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          activeCategory = cat;
+          renderCategoryTabs();
+          renderIssueList(latestMetricsMap);
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    function renderIssueList(metricsMap) {
+      const list = document.getElementById('issue-list');
+      list.innerHTML = '';
+      const filtered = ISSUES.filter((issue) => activeCategory === '전체' || issue.category === activeCategory);
+      if (!filtered.length) {
+        list.innerHTML = '<div class="bg-white p-4 rounded-2xl border text-sm text-gray-500">해당 카테고리의 이슈가 없습니다.</div>';
+        return;
+      }
+      filtered.forEach((issue) => {
+        const metrics = metricsMap[issue.id] || buildIssueMetrics(issue.id);
+        const agree = metrics.raw.percents.찬성 || 0;
+        const neutral = metrics.raw.percents.중립 || 0;
+        const disagree = metrics.raw.percents.반대 || 0;
+        const card = document.createElement('div');
+        card.className = 'bg-white p-4 rounded-2xl shadow-sm border border-gray-100 hover:-translate-y-0.5 transition';
+        card.innerHTML = `
+          <div class="flex items-start justify-between mb-2">
+            <div>
+              <p class="text-xs text-gray-500">${issue.category}</p>
+              <h3 class="font-bold text-lg text-gray-900">${issue.title}</h3>
+              <p class="text-xs text-gray-500 mt-1">${issue.description}</p>
+            </div>
+            <button class="text-sm text-blue-600 font-semibold" onclick="openDetail('${issue.id}')">자세히</button>
+          </div>
+          <div class="w-full h-8 bg-gray-100 rounded-full flex overflow-hidden mb-2">
+            <div style="width:${agree}%" class="h-full bg-blue-600"></div>
+            <div style="width:${neutral}%" class="h-full bg-gray-400"></div>
+            <div style="width:${disagree}%" class="h-full bg-red-500"></div>
+          </div>
+          <div class="flex justify-between text-xs text-gray-500 font-medium">
+            <span class="text-blue-600">찬성 ${agree}%</span>
+            <span class="text-gray-600">중립 ${neutral}%</span>
+            <span class="text-red-600">반대 ${disagree}%</span>
+          </div>
+          <div class="mt-2 text-xs text-gray-500">총 ${metrics.raw.total.toLocaleString()}명 · 대표성 ${metrics.repScore}/100</div>`;
+        list.appendChild(card);
+      });
+    }
+
+    function openDetail(issueId) {
+      if (issueId) setSelectedIssue(issueId);
+      renderAll();
+      setView('detail');
+    }
+
+    function renderDetail(metricsMap) {
+      const issue = getSelectedIssue();
+      const metrics = metricsMap[issue.id] || buildIssueMetrics(issue.id);
+      const raw = metrics.raw;
+      const corrected = metrics.corrected;
+      const ageStats = metrics.ageStats;
+      const repScore = metrics.repScore;
+
+      document.getElementById('detail-category').innerText = issue.category;
+      document.getElementById('detail-title').innerText = issue.title;
+      document.getElementById('total-vote-count').innerText = `총 ${raw.total.toLocaleString()}명 참여`;
+      document.getElementById('detail-rep-score').innerText = repScore || 0;
+
+      document.getElementById('bar-agree').style.width = `${raw.percents.찬성 || 0}%`;
+      document.getElementById('bar-neutral').style.width = `${raw.percents.중립 || 0}%`;
+      document.getElementById('bar-disagree').style.width = `${raw.percents.반대 || 0}%`;
+      document.getElementById('bar-agree').innerText = raw.percents.찬성 > 5 ? `${raw.percents.찬성}%` : '';
+      document.getElementById('bar-neutral').innerText = raw.percents.중립 > 5 ? `${raw.percents.중립}%` : '';
+      document.getElementById('bar-disagree').innerText = raw.percents.반대 > 5 ? `${raw.percents.반대}%` : '';
+      document.getElementById('percent-agree').innerText = `찬성 ${raw.percents.찬성 || 0}%`;
+      document.getElementById('percent-neutral').innerText = `중립 ${raw.percents.중립 || 0}%`;
+      document.getElementById('percent-disagree').innerText = `반대 ${raw.percents.반대 || 0}%`;
+
+      const warningBox = document.getElementById('bias-warnings');
+      warningBox.innerHTML = '';
+      metrics.warnings.forEach((text) => {
+        const row = document.createElement('div');
+        row.className = 'flex items-start gap-2 text-sm text-gray-700 bg-slate-50 border border-slate-100 px-3 py-2 rounded-xl';
+        row.innerHTML = `<span class="material-symbols-outlined text-base text-amber-500">warning</span><span>${text}</span>`;
+        warningBox.appendChild(row);
+      });
+
+      updateEvidence(issue.id);
+      renderComments(issue.id);
+      refreshVoteButtons();
+      renderCharts(raw, corrected, ageStats);
+    }
+
+    function refreshVoteButtons() {
+      ['vote-agree', 'vote-neutral', 'vote-disagree'].forEach((btnId) => {
+        const btn = document.getElementById(btnId);
+        btn.disabled = false;
+        btn.classList.remove('opacity-50', 'border-blue-500', 'border-gray-400', 'border-red-500', 'shadow-md');
+      });
+      const myVote = userVoteMap[getSelectedIssue().id];
+      if (!myVote) return;
+      ['vote-agree', 'vote-neutral', 'vote-disagree'].forEach((btnId) => {
+        const btn = document.getElementById(btnId);
+        if (btnId.includes(myVote === '찬성' ? 'agree' : myVote === '중립' ? 'neutral' : 'disagree')) {
+          btn.classList.add('border-blue-500', 'shadow-md');
+        } else {
+          btn.classList.add('opacity-50');
+          btn.disabled = true;
+        }
+      });
+    }
+
+    function updateEvidence(issueId) {
+      const list = document.getElementById('evidence-list');
+      const data = EVIDENCE[issueId]?.[activeEvidenceTab] || [];
+      document.querySelectorAll('.tab-btn').forEach((btn) => {
+        btn.classList.remove('border-indigo-600', 'text-indigo-600', 'font-semibold');
+        btn.classList.add('border-transparent', 'text-gray-500', 'font-medium');
+      });
+      const activeBtn = document.getElementById(`tab-${activeEvidenceTab}`);
+      activeBtn.classList.add('border-indigo-600', 'text-indigo-600', 'font-semibold');
+      activeBtn.classList.remove('border-transparent', 'text-gray-500', 'font-medium');
+
+      list.innerHTML = '';
+      if (!data.length) {
+        list.innerHTML = '<div class="bg-gray-50 p-4 rounded-xl text-sm text-gray-500 text-center">등록된 근거가 없습니다.</div>';
+        return;
+      }
+      data.forEach((item) => {
+        const card = document.createElement('div');
+        card.className = 'p-4 bg-gray-50 rounded-lg border border-gray-100 hover:bg-gray-100 transition-colors';
+        card.innerHTML = `
+          <div class="flex items-start">
+            <span class="material-symbols-outlined text-sm text-indigo-500 mr-2 mt-0.5">link</span>
+            <div class="flex-1">
+              <p class="text-sm font-semibold text-gray-800 line-clamp-2">${item.title}</p>
+              <p class="text-xs text-gray-500 mt-1">${item.source}</p>
+            </div>
+            <a href="${item.link}" target="_blank" class="ml-3 text-xs text-indigo-500 hover:text-indigo-700 font-medium">원문 보기</a>
+          </div>`;
+        list.appendChild(card);
+      });
+    }
+
+    function selectEvidenceTab(type) {
+      activeEvidenceTab = type;
+      updateEvidence(getSelectedIssue().id);
+    }
+
+    function renderComments(issueId) {
+      const container = document.getElementById('comment-list');
+      const data = COMMENTS[issueId] || [];
+      document.getElementById('comment-count').innerText = data.length;
+      container.innerHTML = '';
+      data.forEach((c) => {
+        let color = 'bg-blue-100 text-blue-600';
+        if (c.type === '중립') color = 'bg-gray-100 text-gray-600';
+        if (c.type === '반대') color = 'bg-red-100 text-red-600';
+        const row = document.createElement('div');
+        row.className = 'bg-white p-4 rounded-2xl shadow-sm border border-gray-100';
+        row.innerHTML = `
+          <div class="flex items-center gap-2 mb-2">
+            <span class="px-1.5 py-0.5 rounded ${color} text-[10px] font-bold">${c.type}</span>
+            <span class="text-xs text-gray-800 font-semibold">${c.nickname}</span>
+            <span class="text-xs text-gray-500 font-medium">${c.meta}</span>
+          </div>
+          <p class="text-sm text-gray-800 leading-relaxed mb-3">${c.content}</p>
+          <div class="flex items-center gap-4 text-xs text-gray-400">
+            <span class="flex items-center gap-1">
+              <span class="material-symbols-outlined text-sm">thumb_up</span>
+              공감 ${c.likes}
+            </span>
+          </div>`;
+        container.appendChild(row);
+      });
+    }
+
+    function addCommentFromPrompt() {
+      if (!ensureLoggedIn()) return;
+      const issueId = getSelectedIssue().id;
+      COMMENTS[issueId] = COMMENTS[issueId] || [];
+      const voteType = userVoteMap[issueId] || '중립';
+      COMMENTS[issueId].unshift({ type: voteType, nickname: '나', meta: `${userProfile?.ageGroup || '연령 미정'} · ${userProfile?.region || '지역 미정'}`, content: '의견을 남겼습니다.', likes: 0 });
+      renderComments(issueId);
+      showToast('의견이 추가되었습니다. (임시)', 'success');
+    }
+
+    function renderPreview(raw) {
+      const canvas = document.getElementById('preview-raw');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      const data = [raw.percents.찬성 || 0, raw.percents.중립 || 0, raw.percents.반대 || 0];
+      const baseConfig = horizontalStackOptions();
+      const chartData = {
+        labels: ['전체'],
+        datasets: [
+          { label: '찬성', data: [data[0]], backgroundColor: COLORS.찬성, stack: 'stack1' },
+          { label: '중립', data: [data[1]], backgroundColor: COLORS.중립, stack: 'stack1' },
+          { label: '반대', data: [data[2]], backgroundColor: COLORS.반대, stack: 'stack1' }
+        ]
+      };
+      if (charts.preview) {
+        charts.preview.data = chartData;
+        charts.preview.update();
+        return;
+      }
+      charts.preview = new Chart(ctx, { type: 'bar', data: chartData, options: baseConfig });
+    }
+
+    function renderCharts(raw, corrected, ageStats) {
+      const rawCanvas = document.getElementById('chart-raw');
+      const correctedCanvas = document.getElementById('chart-corrected');
+      const ageCanvas = document.getElementById('chart-age');
+      if (!rawCanvas || !correctedCanvas || !ageCanvas) return;
+
+      const rawCtx = rawCanvas.getContext('2d');
+      const correctedCtx = correctedCanvas.getContext('2d');
+      const ageCtx = ageCanvas.getContext('2d');
+      if (!rawCtx || !correctedCtx || !ageCtx) return;
+
+      const rawPercent = [raw.percents.찬성 || 0, raw.percents.중립 || 0, raw.percents.반대 || 0];
+      const correctedPercent = [corrected.찬성 || 0, corrected.중립 || 0, corrected.반대 || 0];
+
+      const baseConfig = horizontalStackOptions();
+
+      const rawData = {
+        labels: ['전체'],
+        datasets: [
+          { label: '찬성', data: [rawPercent[0]], backgroundColor: COLORS.찬성, stack: 'stack1' },
+          { label: '중립', data: [rawPercent[1]], backgroundColor: COLORS.중립, stack: 'stack1' },
+          { label: '반대', data: [rawPercent[2]], backgroundColor: COLORS.반대, stack: 'stack1' }
+        ]
+      };
+
+      const correctedData = {
+        labels: ['전체'],
+        datasets: [
+          { label: '찬성', data: [correctedPercent[0]], backgroundColor: COLORS.찬성, stack: 'stack2' },
+          { label: '중립', data: [correctedPercent[1]], backgroundColor: COLORS.중립, stack: 'stack2' },
+          { label: '반대', data: [correctedPercent[2]], backgroundColor: COLORS.반대, stack: 'stack2' }
+        ]
+      };
+
+      if (charts.raw) { charts.raw.data = rawData; charts.raw.update(); }
+      else { charts.raw = new Chart(rawCtx, { type: 'bar', data: rawData, options: baseConfig }); }
+
+      if (charts.corrected) { charts.corrected.data = correctedData; charts.corrected.update(); }
+      else { charts.corrected = new Chart(correctedCtx, { type: 'bar', data: correctedData, options: baseConfig }); }
+
+      const ageLabels = AGE_GROUPS.map((g) => g.label);
+      const ageAgree = ageLabels.map((label) => {
+        const stat = ageStats[label];
+        if (!stat || !stat.total) return 0;
+        return Math.round((stat.counts.찬성 / stat.total) * 1000) / 10;
+      });
+      const ageNeutral = ageLabels.map((label) => {
+        const stat = ageStats[label];
+        if (!stat || !stat.total) return 0;
+        return Math.round((stat.counts.중립 / stat.total) * 1000) / 10;
+      });
+      const ageDisagree = ageLabels.map((label) => {
+        const stat = ageStats[label];
+        if (!stat || !stat.total) return 0;
+        return Math.round((stat.counts.반대 / stat.total) * 1000) / 10;
+      });
+
+      const ageOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: {
+          legend: { position: 'bottom' },
+          tooltip: { callbacks: { label: (ctx) => `${ctx.label} - ${ctx.dataset.label} ${ctx.parsed.x.toFixed(1)}%` } }
+        },
+        scales: {
+          x: { stacked: true, ticks: { callback: (v) => `${v}%`, stepSize: 20 }, max: 100, min: 0 },
+          y: { stacked: true }
+        }
+      };
+
+      const ageData = {
+        labels: ageLabels,
+        datasets: [
+          { label: '찬성', data: ageAgree, backgroundColor: COLORS.찬성 },
+          { label: '중립', data: ageNeutral, backgroundColor: COLORS.중립 },
+          { label: '반대', data: ageDisagree, backgroundColor: COLORS.반대 }
+        ]
+      };
+
+      if (charts.age) { charts.age.data = ageData; charts.age.update(); }
+      else { charts.age = new Chart(ageCtx, { type: 'bar', data: ageData, options: ageOptions }); }
+    }
+
+    function horizontalStackOptions() {
+      return {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: {
+          legend: { position: 'bottom', labels: { boxWidth: 12 } },
+          tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.x.toFixed(1)}%` } }
+        },
+        scales: {
+          x: { stacked: true, min: 0, max: 100, ticks: { stepSize: 20, callback: (v) => `${v}%` } },
+          y: { stacked: true, display: false }
+        }
+      };
+    }
+
+    function handleVote(type) {
+      const choiceMap = { agree: '찬성', neutral: '중립', disagree: '반대' };
+      const issueId = getSelectedIssue().id;
+      if (!ensureProfile()) return;
+      if (userVoteMap[issueId]) {
+        showToast('이미 투표했습니다. 결과 화면에서 확인하세요.', 'error');
+        setView('detail');
+        return;
+      }
+      const voteRecord = {
+        issueId,
+        choice: choiceMap[type],
+        age_group: userProfile.ageGroup,
+        region: userProfile.region,
+        timestamp: Date.now(),
+        userId: currentUser?.id || 'guest'
+      };
+      votes.push(voteRecord);
+      userVoteMap[issueId] = choiceMap[type];
+      saveJSON(STORAGE_KEYS.votes, votes);
+      saveJSON(STORAGE_KEYS.userVote, userVoteMap);
+      showToast('투표가 저장되었습니다.', 'success');
+      renderAll();
+      setView('detail');
+    }
+
+    function getRepresentationHint(issueId) {
+      if (!currentUser) return '로그인 후 대표성 안내가 제공됩니다.';
+      if (!userProfile) return '연령대·거주지를 입력하면 대표성 기여도를 보여드립니다.';
+      const metrics = latestMetricsMap[issueId] || buildIssueMetrics(issueId);
+      const stat = metrics.ageStats[userProfile.ageGroup] || { total: 0 };
+      const total = metrics.raw.total || 0;
+      const popRatio = AGE_GROUPS.find((g) => g.id === userProfile.ageGroup)?.populationRatio || 0;
+      const sampleRatio = total ? (stat.total || 0) / total : 0;
+      if (!total) return '아직 표본이 적습니다. 첫 투표로 대표성을 올려주세요.';
+      if (sampleRatio < popRatio * 0.6) return '당신의 연령대 참여가 부족해 당신의 한 표가 특히 중요합니다.';
+      if (sampleRatio > popRatio * 1.4) return '당신의 연령대는 이미 많이 참여했습니다. 보정이 적용됩니다.';
+      return '균형 잡힌 표본입니다. 계속 참여해 주세요.';
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const colorMap = { success: 'bg-emerald-500', error: 'bg-rose-500', info: 'bg-gray-800' };
+      toast.className = `${colorMap[type] || colorMap.info} text-white px-3 py-2 rounded-xl shadow-lg text-sm`;
+      toast.innerText = message;
+      container.appendChild(toast);
+      setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(-4px)'; }, 2500);
+      setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 3000);
+    }
+  </script>
+</body>
+</html>
