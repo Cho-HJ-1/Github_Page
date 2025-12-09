@@ -151,8 +151,8 @@
             <button id="btn-hero-vote" class="px-4 py-3 rounded-xl bg-white text-blue-700 font-semibold shadow-md hover:-translate-y-0.5 transition">투표하기</button>
             <button id="btn-hero-view" class="px-4 py-3 rounded-xl bg-white/15 text-white font-semibold border border-white/20 hover:border-white/40 transition">현재 여론 보기</button>
           </div>
-          <div class="bg-white/10 rounded-2xl p-3 mt-2 h-28">
-            <p class="text-xs text-blue-100 mb-2">Raw 여론 미리보기</p>
+          <div class="bg-white rounded-2xl border border-blue-100 p-3 mt-2 h-28 shadow-sm">
+            <p class="text-xs text-blue-600 mb-2">Raw 여론 미리보기</p>
             <canvas id="preview-raw" class="h-full"></canvas>
           </div>
         </div>
@@ -180,9 +180,9 @@
             <span class="text-xs text-gray-400 font-medium">1인 1표, 수정 불가</span>
           </div>
           <div class="grid grid-cols-3 gap-3">
-            <button id="vote-agree" onclick="handleVote('agree')" class="p-3 rounded-xl border-2 border-gray-200 text-gray-700 font-medium hover:border-blue-500 hover:bg-blue-50 transition-all active:scale-[0.98]">찬성</button>
-            <button id="vote-neutral" onclick="handleVote('neutral')" class="p-3 rounded-xl border-2 border-gray-200 text-gray-700 font-medium hover:border-gray-400 hover:bg-gray-100 transition-all active:scale-[0.98]">중립</button>
-            <button id="vote-disagree" onclick="handleVote('disagree')" class="p-3 rounded-xl border-2 border-gray-200 text-gray-700 font-medium hover:border-red-500 hover:bg-red-50 transition-all active:scale-[0.98]">반대</button>
+            <button id="vote-agree" onclick="handleVote('agree')" class="p-3 rounded-xl border-2 border-gray-200 text-gray-700 font-medium hover:border-blue-500 hover:bg-blue-50 transition-all duration-150 hover:-translate-y-0.5 active:scale-[0.98]">찬성</button>
+            <button id="vote-neutral" onclick="handleVote('neutral')" class="p-3 rounded-xl border-2 border-gray-200 text-gray-700 font-medium hover:border-gray-400 hover:bg-gray-100 transition-all duration-150 hover:-translate-y-0.5 active:scale-[0.98]">중립</button>
+            <button id="vote-disagree" onclick="handleVote('disagree')" class="p-3 rounded-xl border-2 border-gray-200 text-gray-700 font-medium hover:border-red-500 hover:bg-red-50 transition-all duration-150 hover:-translate-y-0.5 active:scale-[0.98]">반대</button>
           </div>
         </div>
 
@@ -252,6 +252,33 @@
           </div>
           <div class="h-72"><canvas id="chart-age"></canvas></div>
         </div>
+      </div>
+
+      <!-- 외부 여론 레이더 -->
+      <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mb-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+          <div>
+            <p class="text-xs text-gray-500">SNS · 커뮤니티 요약</p>
+            <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+              <span class="material-symbols-outlined text-indigo-600 text-xl">travel_explore</span>
+              외부 여론 레이더 (SNS · 커뮤니티)
+            </h3>
+            <p class="text-sm text-gray-600 mt-1">sns에서 나타나는 여론과 플랫폼 여론을 비교합니다.</p>
+          </div>
+          <span class="px-3 py-1 text-xs font-semibold rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100">AI 분석 Mock</span>
+        </div>
+        <div class="rounded-2xl bg-slate-50 border border-slate-100 p-4 mb-4">
+          <div class="flex items-center justify-between mb-2 text-sm text-gray-700">
+            <span class="font-semibold">플랫폼 여론 vs SNS 여론</span>
+            <span id="external-sample" class="text-xs text-gray-500"></span>
+          </div>
+          <div class="h-40"><canvas id="chart-external"></canvas></div>
+          <div class="flex justify-between text-xs text-gray-500 mt-2 px-1">
+            <span class="px-2 py-1 rounded-full bg-white border border-gray-200 text-gray-700">플랫폼</span>
+            <span class="px-2 py-1 rounded-full bg-white border border-gray-200 text-gray-700">SNS</span>
+          </div>
+        </div>
+        <div id="external-narratives" class="space-y-3"></div>
       </div>
 
       <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mb-6">
@@ -358,6 +385,44 @@
       ]
     };
 
+    const EXTERNAL_OPINIONS = {
+      'issue-1': {
+        sampleSize: 1240,
+        snsRatio: { 찬성: 62, 중립: 8, 반대: 30 },
+        narratives: [
+          { id: 'n1', stance: '찬성', title: '지금 개혁하지 않으면 청년 세대가 모든 부담을 진다', summary: '트위터에서 주로 2030 사용자들이 공유하는 프레임입니다.', isAnomaly: false },
+          { id: 'n2', stance: '반대', title: '보험료만 올리고 급여는 깎이는 개악이다', summary: '특정 커뮤니티에서 반복적으로 등장하는 문장입니다.', isAnomaly: true },
+          { id: 'n3', stance: '중립', title: '재정 건전성과 세대 형평을 함께 논의해야 한다', summary: '언론 기획 기사에서 균형 있게 언급됩니다.', isAnomaly: false }
+        ]
+      },
+      'issue-2': {
+        sampleSize: 820,
+        snsRatio: { 찬성: 54, 중립: 18, 반대: 28 },
+        narratives: [
+          { id: 'n1', stance: '찬성', title: '심야 이동권 확보가 먼저다', summary: '야근/알바 종사자들이 지지하는 의견입니다.', isAnomaly: false },
+          { id: 'n2', stance: '반대', title: '예산만 새고 이용자는 적다', summary: '커뮤니티에서 반복되는 비용 우려 프레임입니다.', isAnomaly: false }
+        ]
+      },
+      'issue-3': {
+        sampleSize: 960,
+        snsRatio: { 찬성: 35, 중립: 25, 반대: 40 },
+        narratives: [
+          { id: 'n1', stance: '반대', title: '요금 변동성은 가계 불안을 키운다', summary: '소비자 커뮤니티 중심으로 확산된 주장입니다.', isAnomaly: false },
+          { id: 'n2', stance: '찬성', title: '가격 신호가 있어야 절약이 가능하다', summary: '에너지 절약 캠페인에서 자주 언급됩니다.', isAnomaly: false }
+        ]
+      },
+      'issue-4': {
+        sampleSize: 710,
+        snsRatio: { 찬성: 41, 중립: 17, 반대: 42 },
+        narratives: [
+          { id: 'n1', stance: '반대', title: '실명제는 표현의 자유를 훼손한다', summary: '디지털 인권 단체가 강조하는 메시지입니다.', isAnomaly: false },
+          { id: 'n2', stance: '찬성', title: '실명제면 악성 게시물이 확 줄 것', summary: '커뮤니티 내 피해 사례 공유 글에서 주로 등장합니다.', isAnomaly: true }
+        ]
+      }
+    };
+
+    const NARRATIVE_COMMENTS = {};
+
     const STORAGE_KEYS = {
       profile: 'rr-profile',
       votes: 'rr-votes',
@@ -371,7 +436,7 @@
       반대: 'rgb(239, 68, 68)'
     };
 
-    const charts = { raw: null, corrected: null, age: null, preview: null };
+    const charts = { raw: null, corrected: null, age: null, preview: null, external: null };
 
     let votes = [];
     let userProfile = null;
@@ -761,7 +826,7 @@
         const neutral = metrics.raw.percents.중립 || 0;
         const disagree = metrics.raw.percents.반대 || 0;
         const card = document.createElement('div');
-        card.className = 'bg-white p-4 rounded-2xl shadow-sm border border-gray-100 hover:-translate-y-0.5 transition';
+        card.className = 'bg-white p-4 rounded-2xl shadow-sm border border-gray-100 hover:-translate-y-0.5 hover:shadow-md transition duration-150';
         card.innerHTML = `
           <div class="flex items-start justify-between mb-2">
             <div>
@@ -828,6 +893,7 @@
       renderComments(issue.id);
       refreshVoteButtons();
       renderCharts(raw, corrected, ageStats);
+      renderExternalOpinions(issue.id, metrics);
     }
 
     function refreshVoteButtons() {
@@ -911,6 +977,123 @@
             </span>
           </div>`;
         container.appendChild(row);
+      });
+    }
+
+    // 외부 SNS 여론(트위터/커뮤니티) 요약 및 프레임 카드 렌더링
+    function renderExternalOpinions(issueId, metrics) {
+      const cardContainer = document.getElementById('external-narratives');
+      const sampleLabel = document.getElementById('external-sample');
+      const config = EXTERNAL_OPINIONS[issueId];
+      if (!cardContainer || !config) return;
+      NARRATIVE_COMMENTS[issueId] = NARRATIVE_COMMENTS[issueId] || {};
+      cardContainer.innerHTML = '';
+      sampleLabel.innerText = `SNS 샘플 ${config.sampleSize.toLocaleString()}건`;
+
+      const sns = config.snsRatio;
+      const platform = {
+        찬성: metrics.raw.percents['찬성'] || 0,
+        중립: metrics.raw.percents['중립'] || 0,
+        반대: metrics.raw.percents['반대'] || 0
+      };
+      const ctxCanvas = document.getElementById('chart-external');
+      if (ctxCanvas) {
+        const ctx = ctxCanvas.getContext('2d');
+        const chartData = {
+          labels: ['플랫폼', 'SNS'],
+          datasets: [
+            { label: '찬성', data: [platform.찬성 || 0, sns.찬성], backgroundColor: COLORS.찬성, stack: 'ext' },
+            { label: '중립', data: [platform.중립 || 0, sns.중립], backgroundColor: COLORS.중립, stack: 'ext' },
+            { label: '반대', data: [platform.반대 || 0, sns.반대], backgroundColor: COLORS.반대, stack: 'ext' }
+          ]
+        };
+        const options = {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: 'y',
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.x.toFixed(1)}%` } }
+          },
+          scales: {
+            x: { stacked: true, min: 0, max: 100, ticks: { stepSize: 20, callback: (v) => `${v}%` }, grid: { color: 'rgba(148,163,184,0.25)' } },
+            y: { stacked: true, grid: { display: false } }
+          }
+        };
+        if (charts.external) {
+          charts.external.data = chartData;
+          charts.external.options = options;
+          charts.external.update();
+        } else {
+          charts.external = new Chart(ctx, { type: 'bar', data: chartData, options });
+        }
+      }
+
+      config.narratives.forEach((narrative) => {
+        const stanceColor = narrative.stance === '찬성' ? 'bg-blue-100 text-blue-700' : narrative.stance === '반대' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700';
+        const anomalyTag = narrative.isAnomaly ? '<span class="px-2 py-1 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-700 border border-amber-200">이상 확산 패턴 감지 (Mock)</span>' : '';
+        const comments = NARRATIVE_COMMENTS[issueId][narrative.id] || [];
+        const card = document.createElement('div');
+        card.className = 'bg-gray-50 border border-gray-100 rounded-2xl p-4 hover:-translate-y-0.5 hover:shadow-md transition duration-150';
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-1 rounded-full text-[10px] font-bold ${stanceColor}">${narrative.stance} 프레임</span>
+              ${anomalyTag}
+            </div>
+            <span class="text-xs text-gray-500">의견수 ${comments.length}개</span>
+          </div>
+          <p class="font-semibold text-gray-900 mb-1">${narrative.title}</p>
+          <p class="text-sm text-gray-600 mb-3">${narrative.summary}</p>
+          <div class="flex gap-2 mb-3">
+            <button class="px-3 py-2 rounded-xl border border-gray-200 text-sm font-semibold hover:-translate-y-0.5 active:scale-[0.98] transition duration-150" data-action="support">지지 의견 쓰기</button>
+            <button class="px-3 py-2 rounded-xl border border-gray-200 text-sm font-semibold hover:-translate-y-0.5 active:scale-[0.98] transition duration-150" data-action="oppose">반박 의견 쓰기</button>
+          </div>
+          <div class="hidden flex-col gap-2 mb-3" data-form>
+            <textarea class="w-full rounded-xl border border-gray-200 p-3 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500" rows="2" placeholder="한 줄 의견을 입력해주세요."></textarea>
+            <button class="self-end px-3 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 active:scale-[0.98] transition duration-150" data-submit>등록</button>
+          </div>
+          <div class="space-y-2" data-comments></div>
+        `;
+
+        const form = card.querySelector('[data-form]');
+        const textarea = form.querySelector('textarea');
+        const submitBtn = form.querySelector('[data-submit]');
+        const commentBox = card.querySelector('[data-comments]');
+
+        const renderCommentList = () => {
+          commentBox.innerHTML = '';
+          comments.slice(0, 3).forEach((c) => {
+            const row = document.createElement('div');
+            row.className = 'text-sm text-gray-800 bg-white border border-gray-100 rounded-xl px-3 py-2 flex items-center gap-2';
+            row.innerHTML = `<span class="px-1.5 py-0.5 rounded ${c.type === '지지' ? 'bg-blue-100 text-blue-600' : 'bg-red-100 text-red-600'} text-[10px] font-bold">${c.type}</span><span class="font-semibold">${c.nickname}</span><span class="text-gray-500">${c.content}</span>`;
+            commentBox.appendChild(row);
+          });
+        };
+        renderCommentList();
+
+        card.querySelector('[data-action="support"]').addEventListener('click', () => {
+          form.classList.toggle('hidden');
+          form.dataset.type = '지지';
+        });
+        card.querySelector('[data-action="oppose"]').addEventListener('click', () => {
+          form.classList.toggle('hidden');
+          form.dataset.type = '반박';
+        });
+        submitBtn.addEventListener('click', () => {
+          const content = textarea.value.trim();
+          if (!content) return showToast('내용을 입력해주세요.', 'error');
+          const type = form.dataset.type || '지지';
+          const nickname = currentUser?.name || '익명';
+          comments.unshift({ type, nickname, content, createdAt: Date.now() });
+          NARRATIVE_COMMENTS[issueId][narrative.id] = comments;
+          textarea.value = '';
+          form.classList.add('hidden');
+          renderCommentList();
+          showToast('의견이 등록되었습니다.', 'success');
+        });
+
+        cardContainer.appendChild(card);
       });
     }
 
@@ -1013,8 +1196,8 @@
           tooltip: { callbacks: { label: (ctx) => `${ctx.label} - ${ctx.dataset.label} ${ctx.parsed.x.toFixed(1)}%` } }
         },
         scales: {
-          x: { stacked: true, ticks: { callback: (v) => `${v}%`, stepSize: 20 }, max: 100, min: 0 },
-          y: { stacked: true }
+          x: { stacked: true, ticks: { callback: (v) => `${v}%`, stepSize: 20 }, max: 100, min: 0, grid: { color: 'rgba(148,163,184,0.25)' } },
+          y: { stacked: true, grid: { display: false } }
         }
       };
 
@@ -1041,7 +1224,7 @@
           tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.x.toFixed(1)}%` } }
         },
         scales: {
-          x: { stacked: true, min: 0, max: 100, ticks: { stepSize: 20, callback: (v) => `${v}%` } },
+          x: { stacked: true, min: 0, max: 100, ticks: { stepSize: 20, callback: (v) => `${v}%` }, grid: { color: 'rgba(148,163,184,0.25)' } },
           y: { stacked: true, display: false }
         }
       };
