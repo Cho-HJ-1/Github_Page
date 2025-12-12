@@ -124,37 +124,48 @@
       <h2 class="text-xl font-extrabold text-gray-800 mb-4">이슈 목록</h2>
 
       <!-- 히어로: 오늘의 이슈 + 대표성 카드 -->
-      <div id="hero-card" class="bg-gradient-to-r from-blue-900 via-blue-700 to-blue-500 rounded-3xl text-white p-6 card relative overflow-hidden mb-4 cursor-pointer">
-        <div class="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top,_#60a5fa_0,_transparent_38%)]"></div>
-        <div class="relative z-10 flex flex-col gap-3">
-          <div class="flex items-center gap-2 text-sm text-blue-100">
-            <span class="px-2 py-0.5 rounded-full bg-white/15 text-[11px] font-semibold">오늘의 이슈</span>
-            <span id="home-category" class="text-blue-50">정책</span>
+      <div id="hero-card" class="bg-gradient-to-r from-blue-500 to-indigo-500 rounded-3xl shadow-xl text-white p-6 md:p-7 relative overflow-hidden mb-3 cursor-pointer">
+        <div class="absolute inset-0 opacity-25 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.35)_0,_transparent_45%)]"></div>
+        <div class="relative z-10 flex flex-col gap-4">
+          <div class="flex items-center gap-2 text-xs md:text-sm">
+            <span class="px-3 py-1 rounded-full bg-white/15 text-[11px] font-semibold tracking-wide uppercase">오늘의 이슈</span>
+            <span id="home-category" class="px-3 py-1 rounded-full bg-white/15 border border-white/20 text-white text-[11px] font-semibold">정책</span>
           </div>
-          <h1 id="home-title" class="text-2xl font-extrabold leading-snug">국민연금 개혁안, 동의하십니까?</h1>
-          <p id="home-description" class="text-sm text-blue-50">세대별 편향을 보정한 진짜 여론을 보여줍니다.</p>
-          <div class="grid grid-cols-3 gap-3 text-sm">
-            <div class="bg-white/10 rounded-2xl px-3 py-2 border border-white/10">
-              <p class="text-blue-100">총 참여</p>
-              <p id="home-total" class="text-lg font-bold">0명</p>
+          <div>
+            <h1 id="home-title" class="text-2xl md:text-3xl font-extrabold leading-snug">국민연금 개혁안, 동의하십니까?</h1>
+            <p id="home-description" class="text-sm md:text-base text-blue-50 mt-2">세대별 편향을 보정한 진짜 여론을 보여줍니다.</p>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="bg-white/15 rounded-2xl px-3 py-3 border border-white/10">
+              <p class="text-blue-100 text-xs">총 참여</p>
+              <p id="home-total" class="text-xl font-bold">0명</p>
             </div>
-            <div class="bg-white/10 rounded-2xl px-3 py-2 border border-white/10">
-              <p class="text-blue-100">대표성 점수</p>
-              <p id="home-rep-score" class="text-lg font-bold">0 / 100</p>
+            <div class="bg-white/15 rounded-2xl px-3 py-3 border border-white/10">
+              <p class="text-blue-100 text-xs">대표성 점수</p>
+              <p id="home-rep-score" class="text-xl font-bold">0 / 100</p>
             </div>
-            <div class="bg-white/10 rounded-2xl px-3 py-2 border border-white/10">
-              <p class="text-blue-100">내 투표</p>
-              <p id="home-my-vote" class="text-lg font-bold">대기</p>
+            <div class="bg-white/15 rounded-2xl px-3 py-3 border border-white/10">
+              <p class="text-blue-100 text-xs">내 투표</p>
+              <p id="home-my-vote" class="text-xl font-bold">대기</p>
             </div>
           </div>
           <div class="flex flex-wrap gap-3 mt-1">
-            <button id="btn-hero-vote" class="px-4 py-3 rounded-xl bg-white text-blue-700 font-semibold shadow-md hover:-translate-y-0.5 transition">투표하기</button>
-            <button id="btn-hero-view" class="px-4 py-3 rounded-xl bg-white/15 text-white font-semibold border border-white/20 hover:border-white/40 transition">현재 여론 보기</button>
+            <button id="btn-hero-vote" class="px-4 py-3 rounded-xl bg-white text-blue-600 font-semibold shadow-md hover:bg-blue-50 hover:-translate-y-0.5 active:scale-95 transition transform">지금 투표하기</button>
+            <button id="btn-hero-view" class="px-4 py-3 rounded-xl bg-white/90 text-indigo-700 font-semibold border border-white/60 hover:bg-white hover:-translate-y-0.5 active:scale-95 transition transform">여론 자세히 보기</button>
           </div>
-          <div class="bg-white rounded-2xl border border-blue-100 p-3 mt-2 h-28 shadow-sm">
-            <p class="text-xs text-blue-600 mb-2">Raw 여론 미리보기</p>
-            <canvas id="preview-raw" class="h-full"></canvas>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-blue-100 p-4 shadow-sm mb-4">
+        <div class="flex items-center justify-between mb-2">
+          <div>
+            <p class="text-xs text-blue-600 font-semibold">Raw 여론 미리보기</p>
+            <p class="text-sm text-slate-600">가로 스택으로 실시간 확인</p>
           </div>
+          <span class="px-2 py-1 rounded-full bg-blue-50 text-blue-700 text-[11px] font-semibold border border-blue-100">실험</span>
+        </div>
+        <div class="h-28">
+          <canvas id="preview-raw" class="h-full"></canvas>
         </div>
       </div>
 
@@ -294,11 +305,119 @@
       </div>
 
       <div class="mb-20">
-        <div class="flex justify-between items-end mb-4">
-          <h3 class="text-lg font-bold text-gray-900">최다 공감 의견 (<span id="comment-count">0</span>)</h3>
-          <button onclick="addCommentFromPrompt()" class="text-sm text-blue-600 font-semibold hover:text-blue-800 transition-colors">임시 의견 추가</button>
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+          <div class="space-y-2">
+            <p class="text-xs text-slate-500 font-semibold">이슈 참여</p>
+            <div class="inline-flex bg-slate-100 rounded-full p-1 shadow-inner">
+              <button id="what-tab-btn" class="px-4 py-2 rounded-full text-sm font-semibold bg-white shadow-sm text-slate-900 transition hover:-translate-y-0.5" data-tab="what">여론 의견 (What)</button>
+              <button id="how-tab-btn" class="px-4 py-2 rounded-full text-sm font-semibold text-slate-500 transition hover:text-slate-700" data-tab="how">해결책 제안 (How)</button>
+            </div>
+          </div>
         </div>
-        <div id="comment-list" class="space-y-3"></div>
+
+        <div id="what-panel" class="space-y-4">
+          <p class="text-sm text-slate-600 bg-white border border-slate-100 rounded-2xl px-4 py-3">이 탭에서는 이슈에 대한 자유로운 의견을 나눕니다. 여론의 '무엇(What)'을 확인하는 영역입니다.</p>
+          <div class="flex justify-between items-end">
+            <h3 class="text-lg font-bold text-gray-900">최다 공감 의견 (<span id="comment-count">0</span>)</h3>
+            <button onclick="addCommentFromPrompt()" class="text-sm text-blue-600 font-semibold hover:text-blue-800 transition-colors">임시 의견 추가</button>
+          </div>
+          <div id="comment-list" class="space-y-3"></div>
+        </div>
+
+        <div id="how-panel" class="space-y-5 hidden">
+          <div class="bg-gradient-to-r from-slate-100 to-white border border-slate-200 rounded-2xl p-4 flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-[11px] text-slate-500 font-semibold uppercase tracking-wide">대표 해결 흐름</p>
+                <p class="text-sm text-slate-600">지지순 → 최신순으로 대표 흐름을 보여줍니다.</p>
+              </div>
+              <span class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-100">Flowchart</span>
+            </div>
+            <div id="solution-flow" class="space-y-2"></div>
+          </div>
+
+          <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-4 space-y-4">
+            <div class="flex items-center justify-between">
+              <h4 class="text-lg font-bold text-slate-900">해결책 제안하기</h4>
+              <span class="text-xs text-slate-500 font-semibold">필수 항목 *</span>
+            </div>
+            <div class="grid gap-3">
+              <div>
+                <label class="text-sm font-semibold text-slate-700">한 줄 요약 *</label>
+                <input id="solution-title" type="text" class="mt-1 w-full rounded-xl border border-slate-200 p-3 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500" placeholder="예: 보험료 단계적 인상 + 취약계층 보전" />
+              </div>
+              <div>
+                <label class="text-sm font-semibold text-slate-700">설명 *</label>
+                <textarea id="solution-summary" rows="2" class="mt-1 w-full rounded-xl border border-slate-200 p-3 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500" placeholder="해결책의 핵심 아이디어를 적어주세요."></textarea>
+              </div>
+              <div>
+                <label class="text-sm font-semibold text-slate-700">정책 레버 (다중 선택)</label>
+                <div id="lever-options" class="mt-2 flex flex-wrap gap-2"></div>
+              </div>
+              <div class="grid md:grid-cols-2 gap-3">
+                <div>
+                  <label class="text-sm font-semibold text-slate-700">예상 효과 (1-5) *</label>
+                  <select id="solution-impact" class="mt-1 w-full rounded-xl border border-slate-200 p-3 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500">
+                    <option value="">선택</option>
+                    <option value="1">1 - 매우 낮음</option>
+                    <option value="2">2 - 낮음</option>
+                    <option value="3">3 - 보통</option>
+                    <option value="4">4 - 높음</option>
+                    <option value="5">5 - 매우 높음</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-sm font-semibold text-slate-700">실현 가능성 (1-5) *</label>
+                  <select id="solution-feasibility" class="mt-1 w-full rounded-xl border border-slate-200 p-3 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500">
+                    <option value="">선택</option>
+                    <option value="1">1 - 매우 낮음</option>
+                    <option value="2">2 - 낮음</option>
+                    <option value="3">3 - 보통</option>
+                    <option value="4">4 - 높음</option>
+                    <option value="5">5 - 매우 높음</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label class="text-sm font-semibold text-slate-700">근거자료 URL (선택)</label>
+                <input id="solution-evidence" type="url" class="mt-1 w-full rounded-xl border border-slate-200 p-3 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500" placeholder="https://..." />
+              </div>
+              <div class="grid md:grid-cols-2 gap-3">
+                <div>
+                  <label class="text-sm font-semibold text-slate-700">문제 정의 *</label>
+                  <textarea id="flow-problem" rows="2" class="mt-1 w-full rounded-xl border border-slate-200 p-3 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500" placeholder="현재 문제를 요약해주세요."></textarea>
+                </div>
+                <div>
+                  <label class="text-sm font-semibold text-slate-700">원인 분석 *</label>
+                  <textarea id="flow-cause" rows="2" class="mt-1 w-full rounded-xl border border-slate-200 p-3 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500" placeholder="문제의 근본 원인을 적어주세요."></textarea>
+                </div>
+                <div>
+                  <label class="text-sm font-semibold text-slate-700">전략 *</label>
+                  <textarea id="flow-strategy" rows="2" class="mt-1 w-full rounded-xl border border-slate-200 p-3 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500" placeholder="어떤 전략으로 접근하나요?"></textarea>
+                </div>
+                <div>
+                  <label class="text-sm font-semibold text-slate-700">실행 *</label>
+                  <textarea id="flow-actions" rows="2" class="mt-1 w-full rounded-xl border border-slate-200 p-3 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500" placeholder="구체 실행 단계를 적어주세요."></textarea>
+                </div>
+                <div class="md:col-span-2">
+                  <label class="text-sm font-semibold text-slate-700">기대 결과 *</label>
+                  <textarea id="flow-outcome" rows="2" class="mt-1 w-full rounded-xl border border-slate-200 p-3 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500" placeholder="실행 후 기대되는 변화를 적어주세요."></textarea>
+                </div>
+              </div>
+              <div class="flex justify-end">
+                <button id="solution-submit" class="px-4 py-3 rounded-xl bg-blue-600 text-white font-semibold shadow hover:bg-blue-700 hover:-translate-y-0.5 active:scale-95 transition transform" type="button">해결책 저장</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="text-lg font-bold text-slate-900">해결책 리스트</h4>
+              <span class="text-xs text-slate-500">지지순 · 최신순</span>
+            </div>
+            <div id="solution-list" class="space-y-3"></div>
+          </div>
+        </div>
       </div>
     </section>
   </main>
@@ -436,8 +555,128 @@
       반대: 'rgb(239, 68, 68)'
     };
 
+    const POLICY_LEVERS = ['재정', '규제', '조직', '데이터/AI', '거버넌스', '커뮤니케이션'];
+
+    const SOLUTION_STORAGE_KEYS = {
+      solutions: 'solutions_v1',
+      support: 'solution_support_v1'
+    };
+
+    const SEED_SOLUTIONS = {
+      'issue-1': [
+        {
+          id: 'sol-1',
+          issueId: 'issue-1',
+          title: '보험료 단계적 인상 + 저소득층 보전',
+          summary: '5년에 걸쳐 보험료율을 1%p씩 올리고 저소득층은 세액공제로 환급하는 하이브리드안입니다.',
+          levers: ['재정', '거버넌스'],
+          impactScore: 4,
+          feasibilityScore: 3,
+          evidenceUrl: '#',
+          authorName: '정책러버',
+          createdAt: Date.now() - 120000,
+          supportCount: 12,
+          flow: {
+            problem: '2055년 기금 고갈 전망으로 세대 갈등이 커짐',
+            cause: '보험료율 정체, 급여율 유지, 낮은 수익률',
+            strategy: '점진적 보험료율 인상 + 취약계층 보전',
+            actions: '국회 단계별 인상 법제화, 세액공제 신설, 사업주 분담 조정',
+            outcome: '기금 고갈 연기, 청년 세대 부담 완화, 불신 감소'
+          }
+        },
+        {
+          id: 'sol-2',
+          issueId: 'issue-1',
+          title: '기금 수익률 제고 + 투명 공시',
+          summary: '국민연금 기금운용을 성과연동 보상과 투명 공시로 개편해 수익률을 올립니다.',
+          levers: ['조직', '데이터/AI'],
+          impactScore: 3,
+          feasibilityScore: 4,
+          evidenceUrl: '#',
+          authorName: '연금워치',
+          createdAt: Date.now() - 90000,
+          supportCount: 8,
+          flow: {
+            problem: '기금 고갈 불안이 커져 신뢰가 하락',
+            cause: '운용 의사결정 폐쇄성, 성과연동 부족',
+            strategy: '성과연동·공시 강화로 수익률 제고',
+            actions: '기금운용위 민간전문가 확대, 월간 수익률 대시보드 공개',
+            outcome: '수익률 상승, 정책 신뢰 회복'
+          }
+        }
+      ],
+      'issue-2': [
+        {
+          id: 'sol-3',
+          issueId: 'issue-2',
+          title: '심야 이동권 패스 + 민간 협력 노선',
+          summary: '심야 전용 패스권을 도입하고 민간과 공동 운행해 적자를 줄입니다.',
+          levers: ['재정', '거버넌스', '커뮤니케이션'],
+          impactScore: 4,
+          feasibilityScore: 4,
+          evidenceUrl: '#',
+          authorName: '모빌리티연구소',
+          createdAt: Date.now() - 80000,
+          supportCount: 10,
+          flow: {
+            problem: '심야 이동권 부족으로 시민 불편 증가',
+            cause: '공공버스 적자 우려, 택시 공급 부족',
+            strategy: '패스권 판매 + 민관 합동 노선 운영',
+            actions: '심야 패스 사전 예약, 민간 버스·택시 노선 공모, 데이터 기반 배차',
+            outcome: '적자 최소화하면서 이동권 확대, 체감 개선'
+          }
+        }
+      ],
+      'issue-3': [
+        {
+          id: 'sol-4',
+          issueId: 'issue-3',
+          title: '연동제 + 취약계층 에너지 바우처 확대',
+          summary: '요금 연동제를 유지하되 저소득층 바우처를 자동 증액해 가격충격을 완화합니다.',
+          levers: ['재정', '규제', '데이터/AI'],
+          impactScore: 4,
+          feasibilityScore: 3,
+          evidenceUrl: '#',
+          authorName: '에너지정책랩',
+          createdAt: Date.now() - 70000,
+          supportCount: 6,
+          flow: {
+            problem: '요금 변동성이 가계 불안을 초래',
+            cause: '연동제 가격 전가, 보호장치 미흡',
+            strategy: '연동제 유지 + 맞춤형 보호',
+            actions: '소득 하위 30% 자동 바우처 증액, 에너지 효율 컨설팅 제공',
+            outcome: '재정 부담 분산, 취약계층 보호, 절약 유인 유지'
+          }
+        }
+      ],
+      'issue-4': [
+        {
+          id: 'sol-5',
+          issueId: 'issue-4',
+          title: '선택적 실명 인증 + AI 필터 결합',
+          summary: '선택적 실명 인증 계정에 가중 신뢰도를 부여하고 AI 필터로 악성 게시물을 즉시 차단합니다.',
+          levers: ['규제', '데이터/AI', '커뮤니케이션'],
+          impactScore: 3,
+          feasibilityScore: 4,
+          evidenceUrl: '#',
+          authorName: '디지털시민',
+          createdAt: Date.now() - 60000,
+          supportCount: 5,
+          flow: {
+            problem: '악성 게시물과 신뢰도 하락',
+            cause: '익명성 악용, 신고·제재 지연',
+            strategy: '신뢰도 기반 노출 + 실시간 필터링',
+            actions: '실명 인증 배지 도입, AI 욕설/개인정보 탐지, 신고 보상제',
+            outcome: '악성 콘텐츠 감소, 표현의 자유 보존, 이용자 신뢰 회복'
+          }
+        }
+      ]
+    };
+
     const charts = { raw: null, corrected: null, age: null, preview: null, external: null };
 
+    let SOLUTIONS = {};
+    let solutionSupportMap = {};
     let votes = [];
     let userProfile = null;
     let userVoteMap = {};
@@ -445,6 +684,7 @@
     let selectedIssueId = null;
     let activeEvidenceTab = 'pro';
     let activeCategory = '전체';
+    let activeOpinionTab = 'what';
     let latestMetricsMap = {};
 
     const SEED_VOTES = [
@@ -489,12 +729,20 @@
         votes = [...SEED_VOTES];
         saveJSON(STORAGE_KEYS.votes, votes);
       }
+      SOLUTIONS = loadJSON(SOLUTION_STORAGE_KEYS.solutions, null);
+      if (!SOLUTIONS) {
+        SOLUTIONS = JSON.parse(JSON.stringify(SEED_SOLUTIONS));
+        saveJSON(SOLUTION_STORAGE_KEYS.solutions, SOLUTIONS);
+      }
+      solutionSupportMap = loadJSON(SOLUTION_STORAGE_KEYS.support, {}) || {};
       userProfile = loadJSON(STORAGE_KEYS.profile, null);
       userVoteMap = loadJSON(STORAGE_KEYS.userVote, {});
       currentUser = loadJSON(STORAGE_KEYS.user, null);
       selectedIssueId = loadJSON('rr-selected-issue', null) || getHotIssue().id;
 
       bindBaseEvents();
+      setupSolutionForm();
+      setupOpinionTabs();
       renderAll();
 
       if (!currentUser) openLoginModal();
@@ -523,6 +771,76 @@
         if (panel.contains(e.target) || trigger.contains(e.target)) return;
         closeUserPanel();
       });
+    }
+
+    function setupOpinionTabs() {
+      const whatBtn = document.getElementById('what-tab-btn');
+      const howBtn = document.getElementById('how-tab-btn');
+      if (!whatBtn || !howBtn) return;
+      if (!whatBtn.dataset.bound) {
+        whatBtn.addEventListener('click', () => switchOpinionTab('what'));
+        howBtn.addEventListener('click', () => switchOpinionTab('how'));
+        whatBtn.dataset.bound = 'true';
+        howBtn.dataset.bound = 'true';
+      }
+      switchOpinionTab(activeOpinionTab);
+    }
+
+    function switchOpinionTab(tab) {
+      activeOpinionTab = tab;
+      const whatBtn = document.getElementById('what-tab-btn');
+      const howBtn = document.getElementById('how-tab-btn');
+      const whatPanel = document.getElementById('what-panel');
+      const howPanel = document.getElementById('how-panel');
+      if (!whatBtn || !howBtn || !whatPanel || !howPanel) return;
+      const activeCls = ['bg-white', 'shadow-sm', 'text-slate-900'];
+      const inactiveCls = ['text-slate-500'];
+      [
+        { btn: whatBtn, key: 'what' },
+        { btn: howBtn, key: 'how' }
+      ].forEach(({ btn, key }) => {
+        btn.classList.remove(...activeCls, ...inactiveCls);
+        if (tab === key) btn.classList.add(...activeCls);
+        else btn.classList.add(...inactiveCls);
+      });
+      whatPanel.classList.toggle('hidden', tab !== 'what');
+      howPanel.classList.toggle('hidden', tab !== 'how');
+    }
+
+    function setupSolutionForm() {
+      const leverWrap = document.getElementById('lever-options');
+      if (leverWrap && !leverWrap.dataset.ready) {
+        POLICY_LEVERS.forEach((lever) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.dataset.lever = lever;
+          btn.dataset.selected = 'false';
+          btn.className = 'px-3 py-1.5 rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-600 hover:-translate-y-0.5 active:scale-95 transition transform';
+          btn.innerText = lever;
+          btn.addEventListener('click', () => toggleLever(btn));
+          leverWrap.appendChild(btn);
+        });
+        leverWrap.dataset.ready = 'true';
+      }
+      const submitBtn = document.getElementById('solution-submit');
+      if (submitBtn && !submitBtn.dataset.bound) {
+        submitBtn.addEventListener('click', handleSolutionSubmit);
+        submitBtn.dataset.bound = 'true';
+      }
+    }
+
+    function toggleLever(btn) {
+      if (!btn) return;
+      const isSelected = btn.dataset.selected === 'true';
+      if (isSelected) {
+        btn.dataset.selected = 'false';
+        btn.classList.remove('bg-blue-50', 'text-blue-700', 'border-blue-200', 'shadow');
+        btn.classList.add('border-slate-200', 'text-slate-600');
+      } else {
+        btn.dataset.selected = 'true';
+        btn.classList.add('bg-blue-50', 'text-blue-700', 'border-blue-200', 'shadow');
+        btn.classList.remove('border-slate-200', 'text-slate-600');
+      }
     }
 
     function openLoginModal() {
@@ -894,6 +1212,9 @@
       refreshVoteButtons();
       renderCharts(raw, corrected, ageStats);
       renderExternalOpinions(issue.id, metrics);
+      renderSolutionFlow(issue.id);
+      renderSolutionList(issue.id);
+      switchOpinionTab(activeOpinionTab);
     }
 
     function refreshVoteButtons() {
@@ -978,6 +1299,198 @@
           </div>`;
         container.appendChild(row);
       });
+    }
+
+    function renderSolutionFlow(issueId) {
+      const container = document.getElementById('solution-flow');
+      if (!container) return;
+      container.innerHTML = '';
+      const solutions = getSortedSolutions(issueId);
+      if (!solutions.length) {
+        container.innerHTML = '<div class="bg-white border border-slate-200 rounded-2xl p-3 text-sm text-slate-500 text-center">아직 해결 흐름이 없습니다. 첫 제안을 남겨주세요.</div>';
+        return;
+      }
+      const top = solutions[0];
+      const header = document.createElement('div');
+      header.className = 'flex items-center justify-between gap-3';
+      header.innerHTML = `<div><p class="text-[11px] text-slate-500 font-semibold uppercase tracking-wide">대표 해결책</p><p class="text-base font-bold text-slate-900">${top.title}</p><p class="text-sm text-slate-600 line-clamp-2">${top.summary}</p></div><div class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm font-semibold border border-blue-100">지지 ${top.supportCount || 0}</div>`;
+      container.appendChild(header);
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'flex flex-col md:flex-row md:items-stretch gap-3';
+      const steps = [
+        { label: '문제 정의', value: top.flow?.problem || '' },
+        { label: '원인 분석', value: top.flow?.cause || '' },
+        { label: '전략', value: top.flow?.strategy || '' },
+        { label: '실행', value: top.flow?.actions || '' },
+        { label: '결과', value: top.flow?.outcome || '' }
+      ];
+
+      steps.forEach((step, idx) => {
+        const box = document.createElement('div');
+        box.className = 'flex-1 bg-white rounded-2xl border border-slate-200 shadow p-3';
+        box.innerHTML = `<p class="text-[11px] text-slate-400 font-semibold uppercase tracking-wide mb-1">${step.label}</p><p class="text-xs md:text-sm text-slate-800 line-clamp-3">${step.value || '작성 대기'}</p>`;
+        wrapper.appendChild(box);
+        if (idx < steps.length - 1) {
+          const arrow = document.createElement('div');
+          arrow.className = 'flex items-center justify-center md:justify-center';
+          arrow.innerHTML = '<span class="hidden md:block text-slate-300 text-lg">→</span><span class="md:hidden text-slate-400 text-lg">↓</span>';
+          wrapper.appendChild(arrow);
+        }
+      });
+      container.appendChild(wrapper);
+    }
+
+    function renderSolutionList(issueId) {
+      const list = document.getElementById('solution-list');
+      if (!list) return;
+      list.innerHTML = '';
+      const solutions = getSortedSolutions(issueId);
+      if (!solutions.length) {
+        list.innerHTML = '<div class="bg-white border border-slate-200 rounded-2xl p-4 text-sm text-slate-500 text-center">등록된 해결책이 없습니다. 첫 제안을 남겨주세요.</div>';
+        return;
+      }
+      solutions.forEach((sol) => {
+        const levers = (sol.levers || []).map((lever) => `<span class="px-2 py-1 rounded-full bg-blue-50 text-blue-700 text-[11px] font-semibold border border-blue-100">${lever}</span>`).join('');
+        const supportUsers = solutionSupportMap[sol.id] || [];
+        const alreadySupported = currentUser?.id ? supportUsers.includes(currentUser.id) : false;
+        const card = document.createElement('div');
+        card.className = 'bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition p-4';
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <p class="text-sm font-bold text-slate-900">${sol.title}</p>
+              <p class="text-xs text-slate-600 mt-1">${sol.summary}</p>
+              <div class="flex flex-wrap gap-2 mt-2">${levers}</div>
+            </div>
+            <div class="text-right text-xs text-slate-500">
+              <p class="font-semibold text-slate-700">지지 ${sol.supportCount || 0}</p>
+              <p>${new Date(sol.createdAt).toLocaleDateString()}</p>
+            </div>
+          </div>
+          <div class="mt-3 space-y-2">
+            <div class="flex items-center gap-2 text-xs text-slate-600">
+              <span class="font-semibold text-slate-700">예상 효과</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div class="h-full bg-blue-500" style="width:${(sol.impactScore || 0) * 20}%;"></div>
+              </div>
+              <span class="text-[11px] text-slate-500">${sol.impactScore || 0}/5</span>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-slate-600">
+              <span class="font-semibold text-slate-700">실현 가능성</span>
+              <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div class="h-full bg-emerald-500" style="width:${(sol.feasibilityScore || 0) * 20}%;"></div>
+              </div>
+              <span class="text-[11px] text-slate-500">${sol.feasibilityScore || 0}/5</span>
+            </div>
+          </div>
+          <div class="flex items-center justify-between mt-3">
+            <div class="text-xs text-blue-600 font-semibold">${sol.evidenceUrl ? `<a href="${sol.evidenceUrl}" target="_blank" class="hover:underline">근거 보기</a>` : '근거 링크 없음'}</div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-slate-500">작성자 ${sol.authorName || '익명'}</span>
+              <button class="px-3 py-2 rounded-xl border ${alreadySupported ? 'bg-blue-50 border-blue-200 text-blue-700' : 'border-blue-200 text-blue-700 hover:bg-blue-50'} text-sm font-semibold transition" data-support="${sol.id}" ${alreadySupported ? 'disabled' : ''}>${alreadySupported ? '지지 완료' : '지지하기'}</button>
+            </div>
+          </div>
+        `;
+        const supportBtn = card.querySelector('[data-support]');
+        supportBtn?.addEventListener('click', () => supportSolution(sol.id));
+        list.appendChild(card);
+      });
+    }
+
+    function handleSolutionSubmit() {
+      if (!ensureLoggedIn()) return;
+      const issueId = getSelectedIssue().id;
+      const title = document.getElementById('solution-title')?.value.trim();
+      const summary = document.getElementById('solution-summary')?.value.trim();
+      const levers = Array.from(document.querySelectorAll('#lever-options [data-lever]')).filter((btn) => btn.dataset.selected === 'true').map((btn) => btn.dataset.lever);
+      const impactScore = parseInt(document.getElementById('solution-impact')?.value, 10);
+      const feasibilityScore = parseInt(document.getElementById('solution-feasibility')?.value, 10);
+      const evidenceUrl = document.getElementById('solution-evidence')?.value.trim();
+      const flow = {
+        problem: document.getElementById('flow-problem')?.value.trim(),
+        cause: document.getElementById('flow-cause')?.value.trim(),
+        strategy: document.getElementById('flow-strategy')?.value.trim(),
+        actions: document.getElementById('flow-actions')?.value.trim(),
+        outcome: document.getElementById('flow-outcome')?.value.trim()
+      };
+      const missingFlow = Object.values(flow).some((v) => !v);
+      if (!title || !summary || !impactScore || !feasibilityScore || missingFlow) {
+        showToast('필수 항목을 모두 입력해주세요.', 'error');
+        return;
+      }
+      const newSolution = {
+        id: `sol-${Date.now()}`,
+        issueId,
+        title,
+        summary,
+        levers,
+        impactScore,
+        feasibilityScore,
+        evidenceUrl,
+        authorName: currentUser?.name || '익명',
+        createdAt: Date.now(),
+        supportCount: 0,
+        flow
+      };
+      SOLUTIONS[issueId] = SOLUTIONS[issueId] || [];
+      SOLUTIONS[issueId].unshift(newSolution);
+      saveSolutionsToStorage();
+      renderSolutionFlow(issueId);
+      renderSolutionList(issueId);
+      resetSolutionForm();
+      switchOpinionTab('how');
+      showToast('해결책이 저장되었습니다.', 'success');
+    }
+
+    function supportSolution(solutionId) {
+      if (!ensureLoggedIn()) return;
+      const issueId = findSolutionIssue(solutionId);
+      if (!issueId) return;
+      const userId = currentUser?.id || 'guest';
+      solutionSupportMap[solutionId] = solutionSupportMap[solutionId] || [];
+      if (solutionSupportMap[solutionId].includes(userId)) {
+        showToast('이미 지지했습니다.', 'error');
+        return;
+      }
+      const target = (SOLUTIONS[issueId] || []).find((s) => s.id === solutionId);
+      if (!target) return;
+      target.supportCount = (target.supportCount || 0) + 1;
+      solutionSupportMap[solutionId].push(userId);
+      saveSolutionsToStorage();
+      renderSolutionFlow(issueId);
+      renderSolutionList(issueId);
+      showToast('해결책을 지지했습니다.', 'success');
+    }
+
+    function findSolutionIssue(solutionId) {
+      return Object.keys(SOLUTIONS).find((issueId) => (SOLUTIONS[issueId] || []).some((s) => s.id === solutionId));
+    }
+
+    function getSortedSolutions(issueId) {
+      const list = SOLUTIONS[issueId] || [];
+      return [...list].sort((a, b) => {
+        const supportDiff = (b.supportCount || 0) - (a.supportCount || 0);
+        if (supportDiff !== 0) return supportDiff;
+        return (b.createdAt || 0) - (a.createdAt || 0);
+      });
+    }
+
+    function resetSolutionForm() {
+      ['solution-title', 'solution-summary', 'solution-impact', 'solution-feasibility', 'solution-evidence', 'flow-problem', 'flow-cause', 'flow-strategy', 'flow-actions', 'flow-outcome'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      document.querySelectorAll('#lever-options [data-lever]').forEach((btn) => {
+        btn.dataset.selected = 'false';
+        btn.classList.remove('bg-blue-50', 'text-blue-700', 'border-blue-200', 'shadow');
+        btn.classList.add('border-slate-200', 'text-slate-600');
+      });
+    }
+
+    function saveSolutionsToStorage() {
+      saveJSON(SOLUTION_STORAGE_KEYS.solutions, SOLUTIONS);
+      saveJSON(SOLUTION_STORAGE_KEYS.support, solutionSupportMap);
     }
 
     // 외부 SNS 여론(트위터/커뮤니티) 요약 및 프레임 카드 렌더링
